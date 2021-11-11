@@ -1,34 +1,35 @@
-Mongoose Delete Plugin
+Mongoose Delete TS Plugin
 =========
 
-mongoose-delete is simple and lightweight plugin that enables soft deletion of documents in MongoDB. This code is based on [riyadhalnur's](https://github.com/riyadhalnur) plugin [mongoose-softdelete](https://github.com/riyadhalnur/mongoose-softdelete).
+mongoose-delete-ts is simple and lightweight plugin that enables soft deletion of documents in MongoDB. This code is based on plugin [mongoose-delete-ts](https://github.com/emiljanitzek/mongoose-delete). But completely re-written in TypeScript with and using mongoose query helpers. 
 
-[![Build Status](https://github.com/dsanel/mongoose-delete/workflows/Test/badge.svg)](https://github.com/dsanel/mongoose-delete/actions/workflows/test.yml)
+[![Build Status](https://github.com/emiljanitzek/mongoose-delete/workflows/Test/badge.svg)](https://github.com/emiljanitzek/mongoose-delete/actions/workflows/test.yml)
 
 ## Features
-  - [Add __delete()__ method on document (do not override standard __remove()__ method)](#simple-usage)
-  - [Add __deleteById()__ static method](#simple-usage)
+  - [Overwrite __delete()__ method on document (will not change function signature to keep TypeScript types intact. Does not override standard __remove()__ method)](#simple-usage)
+  - Add deleteByUser() method on document
+  - [Overrides __deleteById()__ static method](#simple-usage)
   - [Add __deleted__ (true-false) key on document](#simple-usage)
   - [Add __deletedAt__ key to store time of deletion](#save-time-of-deletion)
   - [Add __deletedBy__ key to record who deleted document](#who-has-deleted-the-data)
+  - Possibility to use custom key name for deletedAt/deletedBy will add alias to original name
   - Restore deleted documents using __restore__ method
   - [Bulk delete and restore](#bulk-delete-and-restore)
-  - [Option to override static methods](#examples-how-to-override-one-or-multiple-methods) (__count, countDocuments, find, findOne, findOneAndUpdate, update, updateOne, updateMany__)
-  - [For overridden methods we have two additional methods](#method-overridden): __methodDeleted__ and __methodWithDeleted__
+  - Override all static methods to exclude deleted documents per default (option limit witch methods) [Option to override static methods](#examples-how-to-override-one-or-multiple-methods) (__countDocuments, find, findOne, findOneAndUpdate, updateOne, updateMany__)
+  - Adds query helper `.withDeleted()` to find all documents (even deleted ones)
+  - Adds query helper `.onlyDeleted()` to only find deleted documents
+  - Adds query helper `.notDeleted()` to only find non-deleted documents (when method is excluded from overrideMethods)
   - [Disable model validation on delete](#disable-model-validation-on-delete)
   - [Option to create index on delete fields](#create-index-on-fields) (__deleted__, __deletedAt__, __deletedBy__)
-  - Option to disable use of `$ne` operator using `{use$neOperator: false}`. Before you start to use this option please check [#50](https://github.com/dsanel/mongoose-delete/issues/50).
-  - Option to override **aggregate**.
-  - Option to **populate** with deleted documents (`{ withDeleted: true }`)
+  - Will use $equal operator to find non-deleted documents. If adding this plugin to an existing project, make sure to manually update all existing documents with `deleted=false`
+  - Overrides all **aggregate** to only include non-deleted documents.
+  - Overrides **populate** to only populate non-deleted documents
 
 ## Installation
-Install using [npm](https://npmjs.org)
+Not published to [npm](https://npmjs.org) at the moment. Install with github reference
 ```
-npm install mongoose-delete
+npm install https://github.com/emiljanitzek/mongoose-delete
 ```
-## TypeScript support
-
-The plugin currently do not have its own type definition. Please be free to use [@types/mongoose-delete](https://www.npmjs.com/package/@types/mongoose-delete).   
 
 ## Usage
 
@@ -36,239 +37,207 @@ We can use this plugin with or without options.
 
 ### Simple usage
 
-```javascript
-var mongoose_delete = require('mongoose-delete');
+```typescript
+import mongoose_delete, { DeletedDocument, DeletedModel, DeletedQuery } from 'mongoose-delete-ts';
 
-var PetSchema = new Schema({
-    name: String
+type PetDocument = Document & DeletedDocument & { name?: string };
+type PetModel = Model<PetDocument, DeletedQuery<PetDocument>> & DeletedModel<PetDocument>;
+
+const PetSchema = new Schema<PetDocument, PetModel>({
+	name: String
 });
 
 PetSchema.plugin(mongoose_delete);
 
-var Pet = mongoose.model('Pet', PetSchema);
+const Pet = mongoose.model<PetModel, PetDocument>('Pet', PetSchema);
 
-var fluffy = new Pet({ name: 'Fluffy' });
+const fluffy = new Pet({ name: 'Fluffy' });
 
-fluffy.save(function () {
-    // mongodb: { deleted: false, name: 'Fluffy' }
-
-    // note: you should invoke exactly delete() method instead of standard fluffy.remove()
-    fluffy.delete(function () {
-        // mongodb: { deleted: true, name: 'Fluffy' }
-
-        fluffy.restore(function () {
-            // mongodb: { deleted: false, name: 'Fluffy' }
-        });
-    });
-
-});
+await fluffy.save();
+// mongodb: { deleted: false, name: 'Fluffy' }
+await fluffy.delete();
+// mongodb: { deleted: true, name: 'Fluffy' }
+await fluffy.restore();
+// mongodb: { deleted: false, name: 'Fluffy' }
 
 var examplePetId = mongoose.Types.ObjectId("53da93b16b4a6670076b16bf");
 
-// INFO: Example usage of deleteById static method
-Pet.deleteById(examplePetId, function (err, petDocument) {
-    // mongodb: { deleted: true, name: 'Fluffy', _id: '53da93b1...' }
-});
-
+const petDocument = await Pet.deleteById(examplePetId);
+// mongodb: { deleted: true, name: 'Fluffy', _id: '53da93b1...' }
 ```
 
 
 ### Save time of deletion
 
-```javascript
-var mongoose_delete = require('mongoose-delete');
+```typescript
+import mongoose_delete, { DeletedDocument, DeletedAtDocument, DeletedModel, DeletedQuery } from 'mongoose-delete-ts';
 
-var PetSchema = new Schema({
-    name: String
+type PetDocument = Document & DeletedDocument & DeletedAtDocument & { name?: string };
+type PetModel = Model<PetDocument, DeletedQuery<PetDocument>> & DeletedModel<PetDocument>;
+
+const PetSchema = new Schema<PetDocument, PetModel>({
+	name: String
 });
 
-PetSchema.plugin(mongoose_delete, { deletedAt : true });
+PetSchema.plugin(mongoose_delete, { deletedAt: true });
 
-var Pet = mongoose.model('Pet', PetSchema);
+const Pet = mongoose.model<PetDocument, PetModel>('Pet', PetSchema);
 
-var fluffy = new Pet({ name: 'Fluffy' });
+const fluffy = new Pet({ name: 'Fluffy' });
 
-fluffy.save(function () {
-    // mongodb: { deleted: false, name: 'Fluffy' }
+await fluffy.save();
+// mongodb: { deleted: false, name: 'Fluffy' }
 
-    // note: you should invoke exactly delete() method instead of standard fluffy.remove()
-    fluffy.delete(function () {
-        // mongodb: { deleted: true, name: 'Fluffy', deletedAt: ISODate("2014-08-01T10:34:53.171Z")}
+// note: you should invoke delete() method instead of standard fluffy.remove()
+await fluffy.delete();
+// mongodb: { deleted: true, name: 'Fluffy', deletedAt: ISODate("2014-08-01T10:34:53.171Z")}
 
-        fluffy.restore(function () {
-            // mongodb: { deleted: false, name: 'Fluffy' }
-        });
-    });
-
-});
+await fluffy.restore();
+// mongodb: { deleted: false, name: 'Fluffy' }
 ```
 
 
 ### Who has deleted the data?
 
-```javascript
-var mongoose_delete = require('mongoose-delete');
+```typescript
+import mongoose_delete, { DeletedDocument, DeletedByDocument, DeletedModel, DeletedByModel, DeletedQuery } from 'mongoose-delete-ts';
 
-var PetSchema = new Schema({
+type PetDocument = Document & DeletedDocument & DeletedByDocument & { name?: string };
+type PetModel = Model<PetDocument, DeletedQuery<PetDocument>> & DeletedModel<PetDocument> & DeletedByModel<PetDocument>;
+
+const PetSchema = new Schema<PetDocument, PetModel>({
     name: String
 });
 
 PetSchema.plugin(mongoose_delete, { deletedBy : true });
 
-var Pet = mongoose.model('Pet', PetSchema);
+const Pet = mongoose.model<PetDocument, PetModel>('Pet', PetSchema);
 
-var fluffy = new Pet({ name: 'Fluffy' });
+const fluffy = new Pet({ name: 'Fluffy' });
 
-fluffy.save(function () {
-    // mongodb: { deleted: false, name: 'Fluffy' }
+await fluffy.save();
+// mongodb: { deleted: false, name: 'Fluffy' }
 
-    var idUser = mongoose.Types.ObjectId("53da93b16b4a6670076b16bf");
+var idUser = mongoose.Types.ObjectId("53da93b16b4a6670076b16bf");
 
-    // note: you should invoke exactly delete() method instead of standard fluffy.remove()
-    fluffy.delete(idUser, function () {
-        // mongodb: { deleted: true, name: 'Fluffy', deletedBy: ObjectId("53da93b16b4a6670076b16bf")}
+// note: you should invoke deleteByUser()
+await fluffy.deleteByUser(idUser);
+// mongodb: { deleted: true, name: 'Fluffy', deletedBy: ObjectId("53da93b16b4a6670076b16bf")}
 
-        fluffy.restore(function () {
-            // mongodb: { deleted: false, name: 'Fluffy' }
-        });
-    });
-
-});
+await fluffy.restore();
+// mongodb: { deleted: false, name: 'Fluffy' }
 ```
 
 The type for `deletedBy` does not have to be `ObjectId`, you can set a custom type, such as `String`.
 
-```javascript
-var mongoose_delete = require('mongoose-delete');
+```typescript
+import mongoose_delete, { DeletedDocument, DeletedByDocument, DeletedModel, DeletedByModel, DeletedQuery } from 'mongoose-delete-ts';
 
-var PetSchema = new Schema({
-    name: String
+type PetDocument = Document & DeletedDocument & DeletedByDocument<string> & { name?: string };
+type PetModel = Model<PetDocument, DeletedQuery<PetDocument>> & DeletedModel<PetDocument> & DeletedByModel<PetDocument, string>;
+
+const PetSchema = new Schema<PetDocument, PetModel>({
+	name: String
 });
 
-PetSchema.plugin(mongoose_delete, { deletedBy: true, deletedByType: String });
+PetSchema.plugin(mongoose_delete, { deletedBy: { type: String } });
 
-var Pet = mongoose.model('Pet', PetSchema);
+const Pet = mongoose.model<PetDocument, PetModel>('Pet', PetSchema);
 
-var fluffy = new Pet({ name: 'Fluffy' });
+const fluffy = new Pet({ name: 'Fluffy' });
 
-fluffy.save(function () {
-    // mongodb: { deleted: false, name: 'Fluffy' }
+await fluffy.save();
+// mongodb: { deleted: false, name: 'Fluffy' }
 
-    var idUser = "my-custom-user-id";
+var idUser = '123456789';
 
-    // note: you should invoke exactly delete() method instead of standard fluffy.remove()
-    fluffy.delete(idUser, function () {
-        // mongodb: { deleted: true, name: 'Fluffy', deletedBy: 'my-custom-user-id' }
+// note: you should invoke deleteByUser()
+await fluffy.deleteByUser(idUser)
+// mongodb: { deleted: true, name: 'Fluffy', deletedBy: '123456789' }
 
-        fluffy.restore(function () {
-            // mongodb: { deleted: false, name: 'Fluffy' }
-        });
-    });
-});
+await fluffy.restore()
 ```
+
+## TypeScript support
+
+### Document types
+| Type | Description
+| ---  | ---
+| `DeletedDocument` | Adds `deleted` property and `delete()`, `restore()` methods
+| `DeletedAtDocument` | Adds `deletedAt` property
+| `DeletedByDocument<TUser, TDeletedBy = TUser>` | Adds `deletedBy` property with generic support to specify both user type and return type
+
+### Model types
+| Type | Description
+| ---  | ---
+| `DeletedModel<T>` | Adds `deletedBy` property and `deleteOne()`, `deleteMany()`, `restoreOne()`, `restoreMany()`
+| `DeletedByModel<T, TUser>` | Adds `deleteOneByUser()`, `deleteManyByUser()`
+
+### Query helper types
+| Type | Description
+| ---  | ---
+| DeletedQuery<T> | Adds query helpers `notDeleted()`, `onlyDeleted()`, `withDeleted()`
 
 ### Bulk delete and restore
 
-```javascript
-var mongoose_delete = require('mongoose-delete');
-
-var PetSchema = new Schema({
-    name: String,
-    age: Number
-});
-
-PetSchema.plugin(mongoose_delete);
-
-var Pet = mongoose.model('Pet', PetSchema);
-
-var idUser = mongoose.Types.ObjectId("53da93b16b4a6670076b16bf");
-
+```typescript
 // Delete multiple object, callback
-Pet.delete(function (err, result) { ... });
-Pet.delete({age:10}, function (err, result) { ... });
-Pet.delete({}, idUser, function (err, result) { ... });
-Pet.delete({age:10}, idUser, function (err, result) { ... });
-
-// Delete multiple object, promise
-Pet.delete().exec(function (err, result) { ... });
-Pet.delete({age:10}).exec(function (err, result) { ... });
-Pet.delete({}, idUser).exec(function (err, result) { ... });
-Pet.delete({age:10}, idUser).exec(function (err, result) { ... });
+Pet.deleteMany({});
+Pet.deleteMany({ age:10 });
+Pet.deleteManyByUser(idUser, {});
+Pet.deleteManyByUser(idUser, { age:10 });
 
 // Restore multiple object, callback
-Pet.restore(function (err, result) { ... });
-Pet.restore({age:10}, function (err, result) { ... });
-
-// Restore multiple object, promise
-Pet.restore().exec(function (err, result) { ... });
-Pet.restore({age:10}).exec(function (err, result) { ... });
+Pet.restoreMany({});
+Pet.restoreMany({ age:10 });
 ```
 
 ### Method overridden
 
-We have the option to override all standard methods or only specific methods. Overridden methods will exclude deleted documents from results, documents that have ```deleted = true```. Every overridden method will have two additional methods, so we will be able to work with deleted documents.
+By default, all standard methods will exclude deleted documents from results, documents that have ```deleted = true```. To change this behavior use query helper methods, so we will be able to work with deleted documents.
 
 | only not deleted documents | only deleted documents  | all documents               |
 |----------------------------|-------------------------|-----------------------------|
-| count()                    | countDeleted            | countWithDeleted            |
-| countDocuments()           | countDocumentsDeleted   | countDocumentsWithDeleted   |
-| find()                     | findDeleted             | findWithDeleted             |
-| findOne()                  | findOneDeleted          | findOneWithDeleted          |
-| findOneAndUpdate()         | findOneAndUpdateDeleted | findOneAndUpdateWithDeleted |
-| update()                   | updateDeleted           | updateWithDeleted           |
-| updateOne()                | updateOneDeleted        | updateOneWithDeleted        |
-| updateMany()               | updateManyDeleted       | updateManyWithDeleted       |
-| aggregate()                | aggregateDeleted        | aggregateWithDeleted        |
+| countDocuments()           | countDocuments().onlyDeleted()   | countDocuments().withDeleted()   |
+| find()                     | find().onlyDeleted()             | find().withDeleted()             |
+| findById()                 | findById().onlyDeleted()         | findById().withDeleted()         |
+| findOne()                  | findOne().onlyDeleted()          | findOne().withDeleted()          |
+| findOneAndUpdate()         | findOneAndUpdate().onlyDeleted() | findOneAndUpdate().withDeleted() |
+| findByIdAndUpdate()        | findByIdAndUpdate().onlyDeleted()| findByIdAndUpdate().withDeleted()|
+| updateOne()                | updateOne({ deleted: true })     | updateOne({ deleted: { $in: [true, false] })        |
+| updateMany()               | updateMany({ deleted: true })    | updateMany({ deleted: { $in: [true, false] })       |
+| aggregate()                | aggregate([], { onlyDeleted: true })        | aggregate([], { withDeleted: true })     |
 
 ### Examples how to override one or multiple methods
 
-```javascript
-var mongoose_delete = require('mongoose-delete');
-
-var PetSchema = new Schema({
-    name: String
-});
-
-// Override all methods
-PetSchema.plugin(mongoose_delete, { overrideMethods: 'all' });
-// or 
+```typescript
+// Override all methods (default)
 PetSchema.plugin(mongoose_delete, { overrideMethods: true });
 
 // Overide only specific methods
-PetSchema.plugin(mongoose_delete, { overrideMethods: ['count', 'find', 'findOne', 'findOneAndUpdate', 'update'] });
-// or
-PetSchema.plugin(mongoose_delete, { overrideMethods: ['count', 'countDocuments', 'find'] });
-// or (unrecognized method names will be ignored)
-PetSchema.plugin(mongoose_delete, { overrideMethods: ['count', 'find', 'errorXyz'] });
+PetSchema.plugin(mongoose_delete, { overrideMethods: ['count', 'find', 'findOne'] });
+```
 
+### Example of usage overridden methods
 
-var Pet = mongoose.model('Pet', PetSchema);
+```typescript
+// will return only NOT DELETED documents
+const documents = await Pet.find();
 
-// Example of usage overridden methods
+// will return only DELETED documents
+const deletedDocuments = await Pet.find().onlyDeleted();
 
-Pet.find(function (err, documents) {
-  // will return only NOT DELETED documents
-});
+// will return ALL documents
+const allDocuments = await Pet.find().withDeleted();
 
-Pet.findDeleted(function (err, documents) {
-  // will return only DELETED documents
-});
-
-Pet.findWithDeleted(function (err, documents) {
-  // will return ALL documents
-});
-
+// will return only NOT DELETED documents (if method is not included in overrideMethods)
+PetSchema.plugin(mongoose_delete, { overrideMethods: ['count'] });
+const nonDeletedDocuments = await Pet.find().notDeleted();
 ```
 
 ### Disable model validation on delete
 
-```javascript
-var mongoose_delete = require('mongoose-delete');
-
-var PetSchema = new Schema({
-    name: { type: String, required: true }
-});
-
+```typescript
 // By default, validateBeforeDelete is set to true
 PetSchema.plugin(mongoose_delete);
 // the previous line is identical to next line
@@ -276,48 +245,37 @@ PetSchema.plugin(mongoose_delete, { validateBeforeDelete: true });
 
 // To disable model validation on delete, set validateBeforeDelete option to false
 PetSchema.plugin(mongoose_delete, { validateBeforeDelete: false });
-
-// NOTE: This is based on existing Mongoose validateBeforeSave option
-// http://mongoosejs.com/docs/guide.html#validateBeforeSave
-
 ```
+
+This is based on existing Mongoose [validateBeforeSave option](http://mongoosejs.com/docs/guide.html#validateBeforeSave)
 
 ### Create index on fields
 
-```javascript
-var mongoose_delete = require('mongoose-delete');
-
-var PetSchema = new Schema({
-    name: String
-});
+```typescript
+// Index only specific fields (default)
+PetSchema.plugin(mongoose_delete, { indexFields: ['deleted'] });
+// or
+PetSchema.plugin(mongoose_delete, { indexFields: ['deleted', 'deletedAt'] });
 
 // Index all field related to plugin (deleted, deletedAt, deletedBy)
-PetSchema.plugin(mongoose_delete, { indexFields: 'all' });
-// or 
 PetSchema.plugin(mongoose_delete, { indexFields: true });
-
-// Index only specific fields
-PetSchema.plugin(mongoose_delete, { indexFields: ['deleted', 'deletedBy'] });
-// or
-PetSchema.plugin(mongoose_delete, { indexFields: ['deletedAt'] });
-
-
 ```
 
 ### Custom field names or schema type definition
 
-```javascript
-var mongoose_delete = require('mongoose-delete');
+```typescript
+type PetDocument = Document & DeletedDocument & DeletedAtDocument & DeletedByDocument<string> & { name?: string };
+type PetModel = Model<PetDocument, DeletedQuery<PetDocument>> & DeletedModel<PetDocument> & DeletedByModel<PetDocument, string>;
 
-var PetSchema = new Schema({
+var PetSchema = new Schema<PetDocument, PetModel>({
 	name: String
 });
 
-// Add a custom name for each property, will create alias for the original name
+// Add a custom name for each property, will create alias for the original name (deletedBy/deletedAt)
 PetSchema.plugin(mongoose_delete, { deletedBy: 'deleted_by', deletedAt: 'deleted_at' });
 
 // Use custom schema type definition by supplying an object
-PetSchema.plugin(mongoose_delete, { deletedBy: { name: 'deleted_by', default: 'None', type: String }, deletedAt: { alias: 'deletedTimestamp' } });
+PetSchema.plugin(mongoose_delete, { deletedBy: { name: 'deleted_by', type: String }, deletedAt: { name: 'deleted_at' } });
 ```
 Expects a Mongoose [Schema Types](https://mongoosejs.com/docs/schematypes.html#schematype-options) object with the added option of `name`.
 
@@ -325,7 +283,7 @@ Expects a Mongoose [Schema Types](https://mongoosejs.com/docs/schematypes.html#s
 
 The MIT License
 
-Copyright (c) 2014 Sanel Deljkic http://dsanel.github.io/
+Copyright (c) 2021 Emil Janitzek http://dsanel.github.io/
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 

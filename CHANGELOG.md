@@ -1,3 +1,12 @@
+## [v1.0.0]
+- Completely re-written in TypeScript
+
+### BREAKING CHANGES
+- Only support for Mongoose 6
+- Removed typeKey option, will use typeKey from schema instead
+- Removed deletedByType option, use custom schema type instead
+- Removed use$neOperator option, will always use equal for performance
+
 ## [v0.5.4]
 > August 31, 2021
 
