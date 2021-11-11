@@ -1,0 +1,17 @@
+{
+  "extends": "@tsconfig/node12/tsconfig.json",
+
+  "compilerOptions": {
+    "preserveConstEnums": true,
+    "esModuleInterop": true,
+    "outDir": "../dist",
+    "baseUrl": "./",
+    "types": ["mocha"]
+  },
+
+  "include": [
+    "source/**/*",
+    "test/**/*"
+  ],
+  "exclude": ["./node_modules"]
+}

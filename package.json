@@ -5,8 +5,9 @@
   "author": "Sanel Deljkic <dsanel@gmail.com> (http://dsanel.github.io/)",
   "main": "index.js",
   "scripts": {
-    "test": "mocha",
-    "test-cov": "nyc --reporter=html --reporter=text ./node_modules/mocha/bin/_mocha -- -R spec ./test/*"
+    "test": "npx ts-mocha --project tsconfig.json --transpile-only --recursive --reporter spec --require test/utils/hooks.ts ./test/*",
+    "test-cov": "nyc --reporter=html --reporter=text ./node_modules/mocha/bin/_mocha -- -R spec ./test/*",
+    "eslint": "npx eslint source/** test/** --ext .ts"
   },
   "repository": {
     "type": "git",
@@ -26,12 +27,21 @@
   },
   "homepage": "https://github.com/dsanel/mongoose-delete",
   "peerDependencies": {
-    "mongoose": "4.x || 5.x || 6.x"
+    "mongoose": "6.x"
   },
   "devDependencies": {
-    "chai": "^4.2.0",
-    "mocha": "8.x",
-    "mongoose": "^6",
-    "nyc": "^15.0.0"
-  }
+    "@tsconfig/node12": "~1.0.9",
+    "@types/chai": "~4.2.22",
+    "@types/mocha": "~9.0.0",
+    "@typescript-eslint/eslint-plugin": "~5.3.1",
+    "@typescript-eslint/parser": "~5.3.1",
+    "chai": "~4.3.4",
+    "eslint": "~8.2.0",
+    "mocha": "~9.1.3",
+    "mongoose": "~6.0.12",
+    "nyc": "^15.0.0",
+    "ts-mocha": "~8.0.0",
+    "typescript": "~4.4.4"
+  },
+  "dependencies": {}
 }
