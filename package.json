@@ -1,9 +1,9 @@
 {
-  "name": "mongoose-delete",
+  "name": "mongoose-delete-ts",
   "version": "0.5.4",
   "description": "Mongoose soft delete plugin",
-  "author": "Sanel Deljkic <dsanel@gmail.com> (http://dsanel.github.io/)",
-  "main": "index.js",
+  "author": "Emil Janitzek <emil@pixel2.se>",
+  "main": "source/index.ts",
   "scripts": {
     "test": "npx ts-mocha --project tsconfig.json --transpile-only --recursive --reporter spec --require test/utils/hooks.ts ./test/*",
     "test-cov": "nyc --reporter=html --reporter=text ./node_modules/mocha/bin/_mocha -- -R spec ./test/*",
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:dsanel/mongoose-delete.git"
+    "url": "git@github.com:emiljanitzek/mongoose-delete.git"
   },
   "keywords": [
     "mongoose",
@@ -23,9 +23,9 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/dsanel/mongoose-delete/issues"
+    "url": "https://github.com/emiljanitzek/mongoose-delete/issues"
   },
-  "homepage": "https://github.com/dsanel/mongoose-delete",
+  "homepage": "https://github.com/emiljanitzek/mongoose-delete",
   "peerDependencies": {
     "mongoose": "6.x"
   },
