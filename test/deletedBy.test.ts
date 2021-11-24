@@ -1,6 +1,6 @@
 import DeletedDocument, { DeletedAtDocument, DeletedByDocument } from '../source/DeletedDocument';
 import { Document, Model, Types } from 'mongoose';
-import { DeletedQuery } from '../source/query';
+import DeletedQuery from '../source/DeletedQuery';
 import DeletedModel, { DeletedByModel } from '../source/DeletedModel';
 import { describe } from 'mocha';
 import setupModel from './utils/setupModel';

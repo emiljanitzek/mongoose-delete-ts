@@ -1,6 +1,6 @@
 import { Schema } from 'mongoose';
 import DeletedDocument from './DeletedDocument';
-import DeletedQuery from "./DeletedQuery";
+import DeletedQuery from './DeletedQuery';
 
 export default function<T extends DeletedDocument>(schema: Schema): void {
 	schema.query.withDeleted = function(): DeletedQuery<T>['withDeleted'] {

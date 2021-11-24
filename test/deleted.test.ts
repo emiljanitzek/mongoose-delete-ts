@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import DeletedDocument from '../source/DeletedDocument';
 import { Document, Model } from 'mongoose';
-import { DeletedQuery } from '../source/query';
+import DeletedQuery from '../source/DeletedQuery';
 import DeletedModel from '../source/DeletedModel';
 import { describe } from 'mocha';
 import setupModel from './utils/setupModel';
