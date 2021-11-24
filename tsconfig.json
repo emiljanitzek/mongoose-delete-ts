@@ -3,15 +3,8 @@
 
   "compilerOptions": {
     "preserveConstEnums": true,
-    "esModuleInterop": true,
-    "outDir": "../dist",
-    "baseUrl": "./",
-    "types": ["mocha"]
+    "esModuleInterop": true
   },
 
-  "include": [
-    "source/**/*",
-    "test/**/*"
-  ],
-  "exclude": ["./node_modules"]
+  "exclude": ["./node_modules", "./dist"]
 }

@@ -3,9 +3,14 @@
   "version": "0.5.4",
   "description": "Mongoose soft delete plugin",
   "author": "Emil Janitzek <emil@pixel2.se>",
-  "main": "source/index.ts",
+  "main": "dist/source/index.js",
+  "types": "dist/source/index.d.ts",
   "scripts": {
     "test": "npx ts-mocha --project tsconfig.json --transpile-only --recursive --reporter spec --require test/utils/hooks.ts ./test/*",
+    "test:dist": "npx mocha --recursive --reporter spec --require dist/test/utils/hooks.js ./dist/test/*",
+    "build": "npx tsc -b source",
+    "build:test": "npx tsc -b test",
+    "prepublish": "npm run build",
     "test-cov": "nyc --reporter=html --reporter=text ./node_modules/mocha/bin/_mocha -- -R spec ./test/*",
     "eslint": "npx eslint source/** test/** --ext .ts"
   },
