@@ -6,6 +6,10 @@ import statics from './statics';
 import query from './query';
 import { DeletedField, DeleteOptions, Properties } from './DeleteOptions';
 
+export { default as DeletedDocument, DeletedAtDocument, DeletedByDocument } from './DeletedDocument';
+export { default as DeletedModel, DeletedByModel } from './DeletedModel';
+export { DeleteOptions } from './DeleteOptions';
+
 export default function(schema: Schema, options: DeleteOptions = {}): void {
 	const typeKey = schema.get('typeKey') || 'type';
 	const deletedFieldNames: DeletedFieldOptions = {};
