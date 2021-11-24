@@ -60,5 +60,20 @@
             }
         ],
         "@typescript-eslint/no-explicit-any": "off"
-    }
+    },
+    "overrides": [
+        {
+            "files": ["*.json"],
+            "rules": {
+                "quotes": [
+                    "error",
+                    "double"
+                ],
+                "semi": [
+                    "error",
+                    "never"
+                ]
+            }
+        }
+    ]
 }
