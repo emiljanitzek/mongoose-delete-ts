@@ -1,6 +1,6 @@
 import { Document, Model, Types } from 'mongoose';
 import DeletedDocument from '../source/DeletedDocument';
-import { DeletedQuery } from '../source/query';
+import DeletedQuery from '../source/DeletedQuery';
 import DeletedModel from '../source/DeletedModel';
 import { describe } from 'mocha';
 import setupModel from './utils/setupModel';
@@ -19,7 +19,7 @@ describe('population', function() {
 
 	before(async function() {
 		ChildTestModel = setupModel<ChildTestDocument, ChildTestModel>('TestPopulationChildDelete', { name: String });
-		ParentTestModel = setupModel<ParentTestDocument, ParentTestModel>('TestPopulationParentDelete', { name: String, child: { type: Types.ObjectId, ref: 'TestPopulationChildDelete' } });
+		ParentTestModel = setupModel<ParentTestDocument, ParentTestModel>('TestPopulationParentDelete', { name: String, child: { type: Types.ObjectId, ref: 'TestPopulationChildDelete' } as any });
 	});
 
 	beforeEach(async function() {
