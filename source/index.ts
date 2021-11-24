@@ -8,6 +8,7 @@ import { DeletedField, DeleteOptions, Properties } from './DeleteOptions';
 
 export { default as DeletedDocument, DeletedAtDocument, DeletedByDocument } from './DeletedDocument';
 export { default as DeletedModel, DeletedByModel } from './DeletedModel';
+export { default as DeletedQuery } from './DeletedQuery';
 export { DeleteOptions } from './DeleteOptions';
 
 export default function(schema: Schema, options: DeleteOptions = {}): void {
