@@ -1,7 +1,7 @@
 Mongoose Delete TS Plugin
 =========
 
-mongoose-delete-ts is simple and lightweight plugin that enables soft deletion of documents in MongoDB. This code is based on plugin [mongoose-delete-ts](https://github.com/emiljanitzek/mongoose-delete). But completely re-written in TypeScript with and using mongoose query helpers. 
+mongoose-delete-ts is simple and lightweight plugin that enables soft deletion of documents in MongoDB. This code is based on plugin [mongoose-delete](https://github.com/dsanel/mongoose-delete). But completely re-written in TypeScript with and using mongoose query helpers. 
 
 [![Build Status](https://github.com/emiljanitzek/mongoose-delete/workflows/Test/badge.svg)](https://github.com/emiljanitzek/mongoose-delete/actions/workflows/test.yml)
 
@@ -15,20 +15,20 @@ mongoose-delete-ts is simple and lightweight plugin that enables soft deletion o
   - Possibility to use custom key name for deletedAt/deletedBy will add alias to original name
   - Restore deleted documents using __restore__ method
   - [Bulk delete and restore](#bulk-delete-and-restore)
-  - Override all static methods to exclude deleted documents per default (option limit witch methods) [Option to override static methods](#examples-how-to-override-one-or-multiple-methods) (__countDocuments, find, findOne, findOneAndUpdate, updateOne, updateMany__)
+  - Override all static methods to exclude deleted documents by default ([Option to not override static methods](#examples-how-to-override-one-or-multiple-methods))
   - Adds query helper `.withDeleted()` to find all documents (even deleted ones)
   - Adds query helper `.onlyDeleted()` to only find deleted documents
   - Adds query helper `.notDeleted()` to only find non-deleted documents (when method is excluded from overrideMethods)
   - [Disable model validation on delete](#disable-model-validation-on-delete)
   - [Option to create index on delete fields](#create-index-on-fields) (__deleted__, __deletedAt__, __deletedBy__)
-  - Will use $equal operator to find non-deleted documents. If adding this plugin to an existing project, make sure to manually update all existing documents with `deleted=false`
+  - Will use $equal operator to find non-deleted documents. If you are adding this plugin to an existing project, make sure to manually update all existing documents with `deleted=false`
   - Overrides all **aggregate** to only include non-deleted documents.
   - Overrides **populate** to only populate non-deleted documents
 
 ## Installation
-Not published to [npm](https://npmjs.org) at the moment. Install with github reference
+Install using [npm](https://npmjs.org)
 ```
-npm install https://github.com/emiljanitzek/mongoose-delete
+npm install mongoose-delete-ts
 ```
 
 ## Usage
@@ -38,7 +38,7 @@ We can use this plugin with or without options.
 ### Simple usage
 
 ```typescript
-import mongoose_delete, { DeletedDocument, DeletedModel, DeletedQuery } from 'mongoose-delete-ts';
+import mongooseDelete, { DeletedDocument, DeletedModel, DeletedQuery } from 'mongoose-delete-ts';
 
 type PetDocument = Document & DeletedDocument & { name?: string };
 type PetModel = Model<PetDocument, DeletedQuery<PetDocument>> & DeletedModel<PetDocument>;
@@ -47,7 +47,7 @@ const PetSchema = new Schema<PetDocument, PetModel>({
 	name: String
 });
 
-PetSchema.plugin(mongoose_delete);
+PetSchema.plugin(mongooseDelete);
 
 const Pet = mongoose.model<PetModel, PetDocument>('Pet', PetSchema);
 
@@ -60,7 +60,7 @@ await fluffy.delete();
 await fluffy.restore();
 // mongodb: { deleted: false, name: 'Fluffy' }
 
-var examplePetId = mongoose.Types.ObjectId("53da93b16b4a6670076b16bf");
+const examplePetId = mongoose.Types.ObjectId("53da93b16b4a6670076b16bf");
 
 const petDocument = await Pet.deleteById(examplePetId);
 // mongodb: { deleted: true, name: 'Fluffy', _id: '53da93b1...' }
@@ -70,7 +70,7 @@ const petDocument = await Pet.deleteById(examplePetId);
 ### Save time of deletion
 
 ```typescript
-import mongoose_delete, { DeletedDocument, DeletedAtDocument, DeletedModel, DeletedQuery } from 'mongoose-delete-ts';
+import mongooseDelete, { DeletedDocument, DeletedAtDocument, DeletedModel, DeletedQuery } from 'mongoose-delete-ts';
 
 type PetDocument = Document & DeletedDocument & DeletedAtDocument & { name?: string };
 type PetModel = Model<PetDocument, DeletedQuery<PetDocument>> & DeletedModel<PetDocument>;
@@ -79,7 +79,7 @@ const PetSchema = new Schema<PetDocument, PetModel>({
 	name: String
 });
 
-PetSchema.plugin(mongoose_delete, { deletedAt: true });
+PetSchema.plugin(mongooseDelete, { deletedAt: true });
 
 const Pet = mongoose.model<PetDocument, PetModel>('Pet', PetSchema);
 
@@ -100,7 +100,7 @@ await fluffy.restore();
 ### Who has deleted the data?
 
 ```typescript
-import mongoose_delete, { DeletedDocument, DeletedByDocument, DeletedModel, DeletedByModel, DeletedQuery } from 'mongoose-delete-ts';
+import mongooseDelete, { DeletedDocument, DeletedByDocument, DeletedModel, DeletedByModel, DeletedQuery } from 'mongoose-delete-ts';
 
 type PetDocument = Document & DeletedDocument & DeletedByDocument & { name?: string };
 type PetModel = Model<PetDocument, DeletedQuery<PetDocument>> & DeletedModel<PetDocument> & DeletedByModel<PetDocument>;
@@ -109,7 +109,7 @@ const PetSchema = new Schema<PetDocument, PetModel>({
     name: String
 });
 
-PetSchema.plugin(mongoose_delete, { deletedBy : true });
+PetSchema.plugin(mongooseDelete, { deletedBy : true });
 
 const Pet = mongoose.model<PetDocument, PetModel>('Pet', PetSchema);
 
@@ -118,7 +118,7 @@ const fluffy = new Pet({ name: 'Fluffy' });
 await fluffy.save();
 // mongodb: { deleted: false, name: 'Fluffy' }
 
-var idUser = mongoose.Types.ObjectId("53da93b16b4a6670076b16bf");
+const idUser = mongoose.Types.ObjectId("53da93b16b4a6670076b16bf");
 
 // note: you should invoke deleteByUser()
 await fluffy.deleteByUser(idUser);
@@ -131,7 +131,7 @@ await fluffy.restore();
 The type for `deletedBy` does not have to be `ObjectId`, you can set a custom type, such as `String`.
 
 ```typescript
-import mongoose_delete, { DeletedDocument, DeletedByDocument, DeletedModel, DeletedByModel, DeletedQuery } from 'mongoose-delete-ts';
+import mongooseDelete, { DeletedDocument, DeletedByDocument, DeletedModel, DeletedByModel, DeletedQuery } from 'mongoose-delete-ts';
 
 type PetDocument = Document & DeletedDocument & DeletedByDocument<string> & { name?: string };
 type PetModel = Model<PetDocument, DeletedQuery<PetDocument>> & DeletedModel<PetDocument> & DeletedByModel<PetDocument, string>;
@@ -140,7 +140,7 @@ const PetSchema = new Schema<PetDocument, PetModel>({
 	name: String
 });
 
-PetSchema.plugin(mongoose_delete, { deletedBy: { type: String } });
+PetSchema.plugin(mongooseDelete, { deletedBy: { type: String } });
 
 const Pet = mongoose.model<PetDocument, PetModel>('Pet', PetSchema);
 
@@ -149,7 +149,7 @@ const fluffy = new Pet({ name: 'Fluffy' });
 await fluffy.save();
 // mongodb: { deleted: false, name: 'Fluffy' }
 
-var idUser = '123456789';
+const idUser = '123456789';
 
 // note: you should invoke deleteByUser()
 await fluffy.deleteByUser(idUser)
@@ -161,22 +161,22 @@ await fluffy.restore()
 ## TypeScript support
 
 ### Document types
-| Type | Description
-| ---  | ---
-| `DeletedDocument` | Adds `deleted` property and `delete()`, `restore()` methods
-| `DeletedAtDocument` | Adds `deletedAt` property
-| `DeletedByDocument<TUser, TDeletedBy = TUser>` | Adds `deletedBy` property with generic support to specify both user type and return type
+| Type | Adds property | Adds method
+| ---  | --- | ---
+| `DeletedDocument` | `document.deleted` | `document.delete()`, `document.restore()`
+| `DeletedAtDocument` | `document.deletedAt` |
+| `DeletedByDocument<TUser, TDeletedBy = TUser>` | `document.deletedBy` | `document.deleteByUser(...)`
 
 ### Model types
-| Type | Description
+| Type | Adds static methods
 | ---  | ---
-| `DeletedModel<T>` | Adds `deletedBy` property and `deleteOne()`, `deleteMany()`, `restoreOne()`, `restoreMany()`
-| `DeletedByModel<T, TUser>` | Adds `deleteOneByUser()`, `deleteManyByUser()`
+| `DeletedModel<T>` | `Model.deleteOne(...)`, `Model.deleteMany(...)`, `Model.restoreOne(...)`, `Model.restoreMany(...)`
+| `DeletedByModel<T, TUser>` | `Model.deleteOneByUser(...)`, `Model.deleteManyByUser(...)`
 
 ### Query helper types
-| Type | Description
+| Type | Adds query helpers
 | ---  | ---
-| DeletedQuery<T> | Adds query helpers `notDeleted()`, `onlyDeleted()`, `withDeleted()`
+| `DeletedQuery<T>` | `notDeleted()`, `onlyDeleted()`, `withDeleted()`
 
 ### Bulk delete and restore
 
@@ -212,10 +212,10 @@ By default, all standard methods will exclude deleted documents from results, do
 
 ```typescript
 // Override all methods (default)
-PetSchema.plugin(mongoose_delete, { overrideMethods: true });
+PetSchema.plugin(mongooseDelete, { overrideMethods: true });
 
 // Overide only specific methods
-PetSchema.plugin(mongoose_delete, { overrideMethods: ['count', 'find', 'findOne'] });
+PetSchema.plugin(mongooseDelete, { overrideMethods: ['count', 'find', 'findOne'] });
 ```
 
 ### Example of usage overridden methods
@@ -231,7 +231,7 @@ const deletedDocuments = await Pet.find().onlyDeleted();
 const allDocuments = await Pet.find().withDeleted();
 
 // will return only NOT DELETED documents (if method is not included in overrideMethods)
-PetSchema.plugin(mongoose_delete, { overrideMethods: ['count'] });
+PetSchema.plugin(mongooseDelete, { overrideMethods: ['count'] });
 const nonDeletedDocuments = await Pet.find().notDeleted();
 ```
 
@@ -239,12 +239,12 @@ const nonDeletedDocuments = await Pet.find().notDeleted();
 
 ```typescript
 // By default, validateBeforeDelete is set to true
-PetSchema.plugin(mongoose_delete);
+PetSchema.plugin(mongooseDelete);
 // the previous line is identical to next line
-PetSchema.plugin(mongoose_delete, { validateBeforeDelete: true });
+PetSchema.plugin(mongooseDelete, { validateBeforeDelete: true });
 
 // To disable model validation on delete, set validateBeforeDelete option to false
-PetSchema.plugin(mongoose_delete, { validateBeforeDelete: false });
+PetSchema.plugin(mongooseDelete, { validateBeforeDelete: false });
 ```
 
 This is based on existing Mongoose [validateBeforeSave option](http://mongoosejs.com/docs/guide.html#validateBeforeSave)
@@ -253,12 +253,12 @@ This is based on existing Mongoose [validateBeforeSave option](http://mongoosejs
 
 ```typescript
 // Index only specific fields (default)
-PetSchema.plugin(mongoose_delete, { indexFields: ['deleted'] });
+PetSchema.plugin(mongooseDelete, { indexFields: ['deleted'] });
 // or
-PetSchema.plugin(mongoose_delete, { indexFields: ['deleted', 'deletedAt'] });
+PetSchema.plugin(mongooseDelete, { indexFields: ['deleted', 'deletedAt'] });
 
 // Index all field related to plugin (deleted, deletedAt, deletedBy)
-PetSchema.plugin(mongoose_delete, { indexFields: true });
+PetSchema.plugin(mongooseDelete, { indexFields: true });
 ```
 
 ### Custom field names or schema type definition
@@ -267,15 +267,15 @@ PetSchema.plugin(mongoose_delete, { indexFields: true });
 type PetDocument = Document & DeletedDocument & DeletedAtDocument & DeletedByDocument<string> & { name?: string };
 type PetModel = Model<PetDocument, DeletedQuery<PetDocument>> & DeletedModel<PetDocument> & DeletedByModel<PetDocument, string>;
 
-var PetSchema = new Schema<PetDocument, PetModel>({
+const PetSchema = new Schema<PetDocument, PetModel>({
 	name: String
 });
 
 // Add a custom name for each property, will create alias for the original name (deletedBy/deletedAt)
-PetSchema.plugin(mongoose_delete, { deletedBy: 'deleted_by', deletedAt: 'deleted_at' });
+PetSchema.plugin(mongooseDelete, { deletedBy: 'deleted_by', deletedAt: 'deleted_at' });
 
 // Use custom schema type definition by supplying an object
-PetSchema.plugin(mongoose_delete, { deletedBy: { name: 'deleted_by', type: String }, deletedAt: { name: 'deleted_at' } });
+PetSchema.plugin(mongooseDelete, { deletedBy: { name: 'deleted_by', type: String }, deletedAt: { name: 'deleted_at' } });
 ```
 Expects a Mongoose [Schema Types](https://mongoosejs.com/docs/schematypes.html#schematype-options) object with the added option of `name`.
 
@@ -283,7 +283,7 @@ Expects a Mongoose [Schema Types](https://mongoosejs.com/docs/schematypes.html#s
 
 The MIT License
 
-Copyright (c) 2021 Emil Janitzek http://dsanel.github.io/
+Copyright (c) 2021 Emil Janitzek https://pixel2.se/
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
