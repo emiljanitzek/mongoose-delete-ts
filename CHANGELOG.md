@@ -1,4 +1,5 @@
 ## [v1.0.0]
+> November 24, 2021
 - Completely re-written in TypeScript
 
 ### BREAKING CHANGES
