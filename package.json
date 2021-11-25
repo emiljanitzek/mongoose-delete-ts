@@ -10,27 +10,26 @@
     "test:dist": "npx mocha --recursive --reporter spec --require dist/test/utils/hooks.js ./dist/test/*",
     "build": "npx tsc -b source",
     "build:test": "npx tsc -b test",
-    "prepublish": "npm run build",
-    "test-cov": "nyc --reporter=html --reporter=text ./node_modules/mocha/bin/_mocha -- -R spec ./test/*",
+    "prepare": "npm run build",
     "eslint": "npx eslint source/** test/** --ext .ts"
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:emiljanitzek/mongoose-delete.git"
+    "url": "git@github.com:emiljanitzek/mongoose-delete-ts.git"
   },
   "keywords": [
     "mongoose",
     "soft",
     "delete",
-    "delete",
     "remove",
-    "plugin"
+    "plugin",
+    "typescript"
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/emiljanitzek/mongoose-delete/issues"
+    "url": "https://github.com/emiljanitzek/mongoose-delete-ts/issues"
   },
-  "homepage": "https://github.com/emiljanitzek/mongoose-delete",
+  "homepage": "https://github.com/emiljanitzek/mongoose-delete-ts",
   "peerDependencies": {
     "mongoose": "6.x"
   },
@@ -43,8 +42,7 @@
     "chai": "~4.3.4",
     "eslint": "~8.2.0",
     "mocha": "~9.1.3",
-    "mongoose": "~6.0.12",
-    "nyc": "^15.0.0",
+    "mongoose": "~6.0.13",
     "ts-mocha": "~8.0.0",
     "typescript": "~4.4.4"
   },
