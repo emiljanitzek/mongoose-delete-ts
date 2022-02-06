@@ -20,7 +20,8 @@ export default function(schema: Schema, options: DeleteOptions = {}): void {
 		deleted: {
 			[typeKey]: Boolean,
 			default: false,
-			index: indexFields.includes('deleted')
+			index: indexFields.includes('deleted'),
+			...options.deleted
 		}
 	});
 	if (hasDeletedField(options.deletedAt)) {
