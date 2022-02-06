@@ -178,6 +178,24 @@ describe('delete with validateBeforeDelete', function() {
 	});
 });
 
+describe('deleted schema options', function() {
+	let TestModel: TestModel;
+
+	before(async function() {
+		TestModel = setupModel<TestDocument, TestModel>('TestSchemaOptions', { name: String }, { deleted: { alias: 'destroyed' } });
+	});
+	after(async function() {
+		await dropModel('TestSchemaOptions');
+	});
+
+	it('use custom schema alias', async function() {
+		const puffy = await TestModel.create({ name: 'Puffy1' });
+		const result = await puffy.delete();
+
+		expect(result.destroyed).to.equal(true);
+	});
+});
+
 function expectError(error: unknown): asserts error is Error {
 	if (!(error instanceof Error)) {
 		throw new TypeError('error is not of type Error');
