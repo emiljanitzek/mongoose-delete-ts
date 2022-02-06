@@ -41,7 +41,7 @@ We can use this plugin with or without options.
 import mongooseDelete, { DeletedDocument, DeletedModel, DeletedQuery } from 'mongoose-delete-ts';
 
 type PetDocument = Document & DeletedDocument & { name?: string };
-type PetModel = Model<PetDocument, DeletedQuery<PetDocument>> & DeletedModel<PetDocument>;
+type PetModel = Model<PetDocument, DeletedQuery> & DeletedModel<PetDocument>;
 
 const PetSchema = new Schema<PetDocument, PetModel>({
 	name: String
@@ -73,7 +73,7 @@ const petDocument = await Pet.deleteById(examplePetId);
 import mongooseDelete, { DeletedDocument, DeletedAtDocument, DeletedModel, DeletedQuery } from 'mongoose-delete-ts';
 
 type PetDocument = Document & DeletedDocument & DeletedAtDocument & { name?: string };
-type PetModel = Model<PetDocument, DeletedQuery<PetDocument>> & DeletedModel<PetDocument>;
+type PetModel = Model<PetDocument, DeletedQuery> & DeletedModel<PetDocument>;
 
 const PetSchema = new Schema<PetDocument, PetModel>({
 	name: String
@@ -103,7 +103,7 @@ await fluffy.restore();
 import mongooseDelete, { DeletedDocument, DeletedByDocument, DeletedModel, DeletedByModel, DeletedQuery } from 'mongoose-delete-ts';
 
 type PetDocument = Document & DeletedDocument & DeletedByDocument & { name?: string };
-type PetModel = Model<PetDocument, DeletedQuery<PetDocument>> & DeletedModel<PetDocument> & DeletedByModel<PetDocument>;
+type PetModel = Model<PetDocument, DeletedQuery> & DeletedModel<PetDocument> & DeletedByModel<PetDocument>;
 
 const PetSchema = new Schema<PetDocument, PetModel>({
     name: String
@@ -134,7 +134,7 @@ The type for `deletedBy` does not have to be `ObjectId`, you can set a custom ty
 import mongooseDelete, { DeletedDocument, DeletedByDocument, DeletedModel, DeletedByModel, DeletedQuery } from 'mongoose-delete-ts';
 
 type PetDocument = Document & DeletedDocument & DeletedByDocument<string> & { name?: string };
-type PetModel = Model<PetDocument, DeletedQuery<PetDocument>> & DeletedModel<PetDocument> & DeletedByModel<PetDocument, string>;
+type PetModel = Model<PetDocument, DeletedQuery> & DeletedModel<PetDocument> & DeletedByModel<PetDocument, string>;
 
 const PetSchema = new Schema<PetDocument, PetModel>({
 	name: String
@@ -265,7 +265,7 @@ PetSchema.plugin(mongooseDelete, { indexFields: true });
 
 ```typescript
 type PetDocument = Document & DeletedDocument & DeletedAtDocument & DeletedByDocument<string> & { name?: string };
-type PetModel = Model<PetDocument, DeletedQuery<PetDocument>> & DeletedModel<PetDocument> & DeletedByModel<PetDocument, string>;
+type PetModel = Model<PetDocument, DeletedQuery> & DeletedModel<PetDocument> & DeletedByModel<PetDocument, string>;
 
 const PetSchema = new Schema<PetDocument, PetModel>({
 	name: String

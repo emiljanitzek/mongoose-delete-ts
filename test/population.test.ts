@@ -8,10 +8,10 @@ import dropModel from './utils/dropModel';
 import { expect } from 'chai';
 
 type ParentTestDocument = Document & DeletedDocument & { name: string, child: Types.ObjectId };
-type ParentTestModel = Model<ParentTestDocument, DeletedQuery<ParentTestDocument>> & DeletedModel<ParentTestDocument>;
+type ParentTestModel = Model<ParentTestDocument, DeletedQuery> & DeletedModel<ParentTestDocument>;
 
 type ChildTestDocument = Document & DeletedDocument & { name: string };
-type ChildTestModel = Model<ChildTestDocument, DeletedQuery<ChildTestDocument>> & DeletedModel<ChildTestDocument>;
+type ChildTestModel = Model<ChildTestDocument, DeletedQuery> & DeletedModel<ChildTestDocument>;
 
 describe('population', function() {
 	let ParentTestModel: ParentTestModel;

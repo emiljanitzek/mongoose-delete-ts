@@ -8,7 +8,7 @@ import setupModel from './utils/setupModel';
 import dropModel from './utils/dropModel';
 
 type TestDocument = Document & DeletedDocument & { name: string };
-type TestModel = Model<TestDocument, DeletedQuery<TestDocument>> & DeletedModel<TestDocument>;
+type TestModel = Model<TestDocument, DeletedQuery> & DeletedModel<TestDocument>;
 
 describe('method return signature', function() {
 	let TestModel: TestModel;

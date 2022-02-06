@@ -9,7 +9,7 @@ import { expect } from 'chai';
 import { expectModifiedCount, expectOk, expectUpsertedCount } from './utils/mongooseExpects';
 
 type TestDocument = Document & DeletedDocument & { name: string };
-type TestModel = Model<TestDocument, DeletedQuery<TestDocument>> & DeletedModel<TestDocument>;
+type TestModel = Model<TestDocument, DeletedQuery> & DeletedModel<TestDocument>;
 
 describe('fetch', function() {
 	let TestModel: TestModel;
@@ -208,12 +208,13 @@ describe('fetch', function() {
 
 		it('find() -> return 3 document', async function() {
 			const items = await TestModel.find().withDeleted();
-			expect(items).to.have.lengthOf(3);
+			expect(items.length).to.equal(3);
 		});
 
 		it('findOne() -> return deleted document', async function() {
-			const item = await TestModel.findOne({ name: 'Obi-Wan Kenobi' }).withDeleted();
+			const item = await TestModel.findOne({ name: 'Obi-Wan Kenobi' }).withDeleted().orFail();
 			expect(item).to.not.be.null;
+			expect(item.name).to.exist;
 		});
 
 		it('findOne() -> return non-deleted document', async function() {

@@ -9,7 +9,7 @@ import { expect } from 'chai';
 import { expectDeletedCount, expectMatchCount, expectOk } from './utils/mongooseExpects';
 
 type TestDeletedAtDocument = Document & DeletedDocument & DeletedAtDocument & { name: string };
-type TestDeletedAtModel = Model<TestDeletedAtDocument, DeletedQuery<TestDeletedAtDocument>> & DeletedModel<TestDeletedAtDocument>;
+type TestDeletedAtModel = Model<TestDeletedAtDocument, DeletedQuery> & DeletedModel<TestDeletedAtDocument>;
 
 describe('deletedAt=true', function() {
 	let TestModel: TestDeletedAtModel;
