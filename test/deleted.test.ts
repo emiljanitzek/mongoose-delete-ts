@@ -9,7 +9,7 @@ import dropModel from './utils/dropModel';
 import { expectDeletedCount, expectModifiedCount, expectOk } from './utils/mongooseExpects';
 
 type TestDocument = Document & DeletedDocument & { name: string };
-type TestModel = Model<TestDocument, DeletedQuery<TestDocument>> & DeletedModel<TestDocument>;
+type TestModel = Model<TestDocument, DeletedQuery> & DeletedModel<TestDocument>;
 
 describe('simple delete', function() {
 	let TestModel: TestModel;
@@ -91,7 +91,7 @@ describe('simple delete', function() {
 
 type Timestamps = { createdAt: Date, updatedAt: Date };
 type TestTimestampsDocument = Document & DeletedDocument & Timestamps & { name: string };
-type TestTimestampsModel = Model<TestTimestampsDocument, DeletedQuery<TestTimestampsDocument>> & DeletedModel<TestTimestampsDocument>;
+type TestTimestampsModel = Model<TestTimestampsDocument, DeletedQuery> & DeletedModel<TestTimestampsDocument>;
 
 describe('delete with timestamps', function() {
 	let TestModel: TestTimestampsModel;

@@ -9,7 +9,7 @@ import { expect } from 'chai';
 import { expectDeletedCount, expectMatchCount, expectOk } from './utils/mongooseExpects';
 
 type TestDeletedByDocument = Document & DeletedDocument & DeletedAtDocument & DeletedByDocument & { name: string };
-type TestDeletedByModel = Model<TestDeletedByDocument, DeletedQuery<TestDeletedByDocument>> & DeletedModel<TestDeletedByDocument> & DeletedByModel<TestDeletedByDocument>;
+type TestDeletedByModel = Model<TestDeletedByDocument, DeletedQuery> & DeletedModel<TestDeletedByDocument> & DeletedByModel<TestDeletedByDocument>;
 
 describe('deletedAt=true', function() {
 	let TestModel: TestDeletedByModel;
@@ -104,7 +104,7 @@ describe('deletedBy=deleted_by', function() {
 
 type User = { id: string }
 type TestDeletedByStringDocument = Document & DeletedDocument & DeletedAtDocument & DeletedByDocument<string, User> & { name: string };
-type TestDeletedByStringModel = Model<TestDeletedByStringDocument, DeletedQuery<TestDeletedByStringDocument>> & DeletedModel<TestDeletedByStringDocument> & DeletedByModel<TestDeletedByStringDocument, string>;
+type TestDeletedByStringModel = Model<TestDeletedByStringDocument, DeletedQuery> & DeletedModel<TestDeletedByStringDocument> & DeletedByModel<TestDeletedByStringDocument, string>;
 
 describe('deletedBy custom schema', function() {
 	let TestModel: TestDeletedByStringModel;
