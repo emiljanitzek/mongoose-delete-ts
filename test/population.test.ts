@@ -8,10 +8,10 @@ import dropModel from './utils/dropModel';
 import { expect } from 'chai';
 
 type ParentTestDocument = Document & DeletedDocument & { name: string, child: Types.ObjectId };
-type ParentTestModel = Model<ParentTestDocument, DeletedQuery> & DeletedModel<ParentTestDocument>;
+type ParentTestModel = Model<ParentTestDocument, DeletedQuery<ParentTestDocument>> & DeletedModel<ParentTestDocument>;
 
 type ChildTestDocument = Document & DeletedDocument & { name: string };
-type ChildTestModel = Model<ChildTestDocument, DeletedQuery> & DeletedModel<ChildTestDocument>;
+type ChildTestModel = Model<ChildTestDocument, DeletedQuery<ChildTestDocument>> & DeletedModel<ChildTestDocument>;
 
 describe('population', function() {
 	let ParentTestModel: ParentTestModel;
@@ -63,7 +63,7 @@ describe('population', function() {
 	it('populate() -> return deleted sub-document withDeleted=true', async function() {
 		const document = await ParentTestModel
 			.findOne({ name: 'Student 1' })
-			.populate({ path: 'child', options: { withDeleted: true } })
+			.populate({ path: 'child', options: { ignoreDeleted: true } })
 			.orFail();
 
 		expect(document.child).to.not.be.null;

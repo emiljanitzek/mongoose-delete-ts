@@ -9,7 +9,7 @@ import { expect } from 'chai';
 import { expectModifiedCount, expectOk, expectUpsertedCount } from './utils/mongooseExpects';
 
 type TestDocument = Document & DeletedDocument & { name: string };
-type TestModel = Model<TestDocument, DeletedQuery> & DeletedModel<TestDocument>;
+type TestModel = Model<TestDocument, DeletedQuery<TestDocument>> & DeletedModel<TestDocument>;
 
 describe('fetch', function() {
 	let TestModel: TestModel;
