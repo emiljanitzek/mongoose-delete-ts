@@ -1,3 +1,10 @@
+## [v1.1.0]
+> July 14, 2022
+
+- Add support for custom schema definition for deleted
+- Improved query helper typescript interface for proper chaining
+- Update dependencies and add support for node 18 and mongodb 5
+
 ## [v1.0.0]
 > November 24, 2021
 - Completely re-written in TypeScript
