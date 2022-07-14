@@ -6,9 +6,11 @@ import statics from './statics';
 import query from './query';
 import { DeletedField, DeleteOptions, Properties } from './DeleteOptions';
 import DeletedQuery from './DeletedQuery';
+
 export { default as DeletedDocument, DeletedAtDocument, DeletedByDocument } from './DeletedDocument';
 export { default as DeletedModel, DeletedByModel } from './DeletedModel';
 export { DeleteOptions } from './DeleteOptions';
+export { DeletedQuery };
 
 export default function(
 	schema: Schema<any, any, {}, DeletedQuery<any>>,
