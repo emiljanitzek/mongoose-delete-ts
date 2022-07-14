@@ -8,7 +8,7 @@ import dropModel from './utils/dropModel';
 import { expect } from 'chai';
 
 type TestDocument = Document & DeletedDocument & { name: string };
-type TestModel = Model<TestDocument, DeletedQuery> & DeletedModel<TestDocument>;
+type TestModel = Model<TestDocument, DeletedQuery<TestDocument>> & DeletedModel<TestDocument>;
 
 describe('with type key', function() {
 	let TestModel: TestModel;

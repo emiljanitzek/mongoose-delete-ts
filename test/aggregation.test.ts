@@ -8,7 +8,7 @@ import dropModel from './utils/dropModel';
 import { expect } from 'chai';
 
 type TestDocument = Document & DeletedDocument & { name: string };
-type TestModel = Model<TestDocument, DeletedQuery> & DeletedModel<TestDocument>;
+type TestModel = Model<TestDocument, DeletedQuery<TestDocument>> & DeletedModel<TestDocument>;
 
 describe('aggregation', function() {
 	let TestModel: TestModel;
@@ -70,7 +70,7 @@ describe('aggregation', function() {
 	it('aggregate() -> with onlyDeleted returns 2 document', async function() {
 		const documents = await TestModel.aggregate([
 			{ $project : { name: 1 } }
-		], { onlyDeleted: true });
+		], { onlyDeleted: true } as any);
 
 		expect(documents).to.have.lengthOf(2);
 	});
@@ -78,7 +78,7 @@ describe('aggregation', function() {
 	it('aggregate() -> with withDeleted returns 3 document', async function() {
 		const documents = await TestModel.aggregate([
 			{ $project : { name: 1 } }
-		], { withDeleted: true });
+		], { withDeleted: true } as any);
 
 		expect(documents).to.have.lengthOf(3);
 	});

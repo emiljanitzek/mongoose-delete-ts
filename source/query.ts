@@ -1,16 +1,16 @@
 import { Schema } from 'mongoose';
 import DeletedQuery from './DeletedQuery';
 
-export default function(schema: Schema): void {
-	schema.query.withDeleted = function(): DeletedQuery['withDeleted'] {
+export default function<T, M>(schema: Schema<T, M, {}, DeletedQuery<T>>): void {
+	schema.query.withDeleted = function() {
 		return this.setOptions({ ignoreDeleted: true });
 	};
 
-	schema.query.notDeleted = function(): DeletedQuery['notDeleted'] {
+	schema.query.notDeleted = function() {
 		return this.where({ deleted: false });
 	};
 
-	schema.query.onlyDeleted = function(): DeletedQuery['onlyDeleted'] {
+	schema.query.onlyDeleted = function() {
 		return this.where({ deleted: true });
 	};
 }

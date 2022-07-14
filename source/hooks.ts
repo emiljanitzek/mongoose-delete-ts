@@ -1,4 +1,4 @@
-import { Aggregate, Query, Schema } from 'mongoose';
+import { Aggregate, PipelineStage, Query, Schema } from 'mongoose';
 import DeletedDocument from './DeletedDocument';
 import { Methods } from './DeleteOptions';
 
@@ -60,8 +60,12 @@ function notIgnoreDeletedInOptions<T>(query: Query<unknown, T>): boolean {
 }
 
 function deletedIsNotAlreadyInAggregation(aggregation: Aggregate<unknown>): boolean {
-	const matches = aggregation.pipeline().filter((pipeline) => Object.keys(pipeline).includes('$match'));
-	return !matches.some((match) => Object.keys(match['$match']).includes('deleted'));
+	const matches = aggregation.pipeline().filter(isPipelineMatch);
+	return !matches.some((match: PipelineStage.Match) => Object.keys(match['$match']).includes('deleted'));
+}
+
+function isPipelineMatch(pipeline: PipelineStage): pipeline is PipelineStage.Match {
+	return Object.keys(pipeline).includes('$match');
 }
 
 function notWithDeletedInOptions(aggregation: Aggregate<unknown>): boolean {
