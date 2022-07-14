@@ -1,3 +1,8 @@
+## [v1.1.1]
+> July 14, 2022
+
+- Add missing export for DeleteQuery
+
 ## [v1.1.0]
 > July 14, 2022
 
