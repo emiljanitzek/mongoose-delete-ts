@@ -1,5 +1,7 @@
+import { UpdateQuery } from 'mongoose';
+import Deleted from '../types/Deleted';
 import deletedProp from './deleteProp';
-import DeletedFieldOptions from '../DeletedFieldOptions';
+import DeletedFieldOptions from '../types/DeletedFieldOptions';
 
 export default function restoreDocument(
 	{ deletedAt, deletedBy }: DeletedFieldOptions
@@ -13,7 +15,7 @@ export default function restoreDocument(
 
 export function staticRestore(
 	{ deletedAt, deletedBy }: DeletedFieldOptions
-): Record<string, unknown> {
+): UpdateQuery<Deleted> {
 	return {
 		$set: { deleted: false },
 		$unset: {

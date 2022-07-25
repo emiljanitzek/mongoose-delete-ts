@@ -42,7 +42,7 @@
     "chai": "~4.3.6",
     "eslint": "~8.19.0",
     "mocha": "~10.0.0",
-    "mongoose": "~6.4.4",
+    "mongoose": "emiljanitzek/mongoose#v6.4.7-alpha",
     "ts-mocha": "~10.0.0",
     "typescript": "~4.7.4"
   },
