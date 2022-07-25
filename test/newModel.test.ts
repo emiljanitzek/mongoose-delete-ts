@@ -1,20 +1,19 @@
-import { Document, Model } from 'mongoose';
-import DeletedDocument from '../source/DeletedDocument';
-import DeletedQuery from '../source/DeletedQuery';
-import DeletedModel from '../source/DeletedModel';
+import { Model } from 'mongoose';
+import { Deleted, DeletedInstanceMethods, DeletedMethods, DeletedQueryHelpers } from '../source';
 import { describe } from 'mocha';
 import setupModel from './utils/setupModel';
 import dropModel from './utils/dropModel';
 import { expect } from 'chai';
 
-type TestDocument = Document & DeletedDocument & { name: string };
-type TestModel = Model<TestDocument, DeletedQuery<TestDocument>> & DeletedModel<TestDocument>;
+type Test = { name: string } & Deleted;
+type TestQueryHelpers = DeletedQueryHelpers<Test>;
+type TestModel = Model<Test, TestQueryHelpers, DeletedMethods> & DeletedInstanceMethods<Test, TestQueryHelpers>;
 
 describe('new model', function() {
 	let TestModel: TestModel;
 
 	before(async function() {
-		TestModel = setupModel<TestDocument, TestModel>('TestNewModel', { name: String });
+		TestModel = setupModel<Test, TestModel>('TestNewModel', { name: String });
 	});
 
 	after(async function() {

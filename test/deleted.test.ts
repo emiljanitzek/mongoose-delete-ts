@@ -1,21 +1,20 @@
 import { expect } from 'chai';
-import DeletedDocument from '../source/DeletedDocument';
-import { Document, Model } from 'mongoose';
-import DeletedQuery from '../source/DeletedQuery';
-import DeletedModel from '../source/DeletedModel';
+import { Deleted, DeletedInstanceMethods, DeletedMethods, DeletedQueryHelpers } from '../source';
+import { Model } from 'mongoose';
 import { describe } from 'mocha';
 import setupModel from './utils/setupModel';
 import dropModel from './utils/dropModel';
 import { expectDeletedCount, expectModifiedCount, expectOk } from './utils/mongooseExpects';
 
-type TestDocument = Document & DeletedDocument & { name: string };
-type TestModel = Model<TestDocument, DeletedQuery<TestDocument>> & DeletedModel<TestDocument>;
+type Test = { name: string } & Deleted;
+type TestQueryHelpers = DeletedQueryHelpers<Test>;
+type TestModel = Model<Test, TestQueryHelpers, DeletedMethods> & DeletedInstanceMethods<Test, TestQueryHelpers>;
 
 describe('simple delete', function() {
 	let TestModel: TestModel;
 
 	before(async function() {
-		TestModel = setupModel<TestDocument, TestModel>('TestSimpleDelete', { name: String });
+		TestModel = setupModel<Test, TestModel>('TestSimpleDelete', { name: String });
 	});
 
 	after(async function() {
@@ -90,14 +89,15 @@ describe('simple delete', function() {
 });
 
 type Timestamps = { createdAt: Date, updatedAt: Date };
-type TestTimestampsDocument = Document & DeletedDocument & Timestamps & { name: string };
-type TestTimestampsModel = Model<TestTimestampsDocument, DeletedQuery<TestTimestampsDocument>> & DeletedModel<TestTimestampsDocument>;
+type TestTimestamps =  Deleted & Timestamps & { name: string };
+type TestTimestampsQueryHelpers = DeletedQueryHelpers<TestTimestamps>;
+type TestTimestampsModel = Model<TestTimestamps, TestTimestampsQueryHelpers, DeletedMethods> & DeletedInstanceMethods<TestTimestamps, TestTimestampsQueryHelpers>;
 
 describe('delete with timestamps', function() {
 	let TestModel: TestTimestampsModel;
 
 	before(async function() {
-		TestModel = setupModel<TestTimestampsDocument, TestTimestampsModel>('TestDeleteWithTimestamps', { name: String }, {}, { timestamps: true });
+		TestModel = setupModel<TestTimestamps, TestTimestampsModel>('TestDeleteWithTimestamps', { name: String }, {}, { timestamps: true });
 	});
 
 	after(async function() {
@@ -150,8 +150,8 @@ describe('delete with validateBeforeDelete', function() {
 	let TestModelFalse: TestModel;
 
 	before(async function() {
-		TestModelTrue = setupModel<TestDocument, TestModel>('TestValidateBeforeDeleteTrue', { name: { type: String, required: true } }, { validateBeforeDelete: true });
-		TestModelFalse = setupModel<TestDocument, TestModel>('TestValidateBeforeDeleteFalse', { name: { type: String, required: true } }, { validateBeforeDelete: false });
+		TestModelTrue = setupModel<Test, TestModel>('TestValidateBeforeDeleteTrue', { name: { type: String, required: true } }, { validateBeforeDelete: true });
+		TestModelFalse = setupModel<Test, TestModel>('TestValidateBeforeDeleteFalse', { name: { type: String, required: true } }, { validateBeforeDelete: false });
 	});
 	after(async function() {
 		await dropModel('TestValidateBeforeDeleteTrue');
@@ -182,7 +182,7 @@ describe('deleted schema options', function() {
 	let TestModel: TestModel;
 
 	before(async function() {
-		TestModel = setupModel<TestDocument, TestModel>('TestSchemaOptions', { name: String }, { deleted: { alias: 'destroyed' } });
+		TestModel = setupModel<Test, TestModel>('TestSchemaOptions', { name: String }, { deleted: { alias: 'destroyed' } });
 	});
 	after(async function() {
 		await dropModel('TestSchemaOptions');

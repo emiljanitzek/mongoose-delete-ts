@@ -1,25 +1,28 @@
-import { Document, Model, Types } from 'mongoose';
-import DeletedDocument from '../source/DeletedDocument';
-import DeletedQuery from '../source/DeletedQuery';
-import DeletedModel from '../source/DeletedModel';
+import { Model, Schema, Types } from 'mongoose';
+import { Deleted, DeletedInstanceMethods, DeletedMethods, DeletedQueryHelpers } from '../source';
 import { describe } from 'mocha';
 import setupModel from './utils/setupModel';
 import dropModel from './utils/dropModel';
 import { expect } from 'chai';
 
-type ParentTestDocument = Document & DeletedDocument & { name: string, child: Types.ObjectId };
-type ParentTestModel = Model<ParentTestDocument, DeletedQuery<ParentTestDocument>> & DeletedModel<ParentTestDocument>;
+type ParentTest = { name: string, child: Types.ObjectId } & Deleted;
+type ParentTestQueryHelpers = DeletedQueryHelpers<ParentTest>;
+type ParentTestModel = Model<ParentTest, ParentTestQueryHelpers, DeletedMethods> & DeletedInstanceMethods<ParentTest, ParentTestQueryHelpers>;
 
-type ChildTestDocument = Document & DeletedDocument & { name: string };
-type ChildTestModel = Model<ChildTestDocument, DeletedQuery<ChildTestDocument>> & DeletedModel<ChildTestDocument>;
+type ChildTest = { name: string } & Deleted;
+type ChildTestQueryHelpers = DeletedQueryHelpers<ChildTest>;
+type ChildTestModel = Model<ChildTest, ChildTestQueryHelpers, DeletedMethods> & DeletedInstanceMethods<ChildTest, ChildTestQueryHelpers>;
 
 describe('population', function() {
 	let ParentTestModel: ParentTestModel;
 	let ChildTestModel: ChildTestModel;
 
 	before(async function() {
-		ChildTestModel = setupModel<ChildTestDocument, ChildTestModel>('TestPopulationChildDelete', { name: String });
-		ParentTestModel = setupModel<ParentTestDocument, ParentTestModel>('TestPopulationParentDelete', { name: String, child: { type: Types.ObjectId, ref: 'TestPopulationChildDelete' } as any });
+		ChildTestModel = setupModel<ChildTest, ChildTestModel>('TestPopulationChildDelete', { name: String });
+		ParentTestModel = setupModel<ParentTest, ParentTestModel>('TestPopulationParentDelete', {
+			name: String,
+			child: { type: Schema.Types.ObjectId, ref: 'TestPopulationChildDelete' }
+		});
 	});
 
 	beforeEach(async function() {

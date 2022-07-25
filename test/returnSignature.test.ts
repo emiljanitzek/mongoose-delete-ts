@@ -1,19 +1,19 @@
 import { describe } from 'mocha';
 import { expect } from 'chai';
-import { Document, Model } from 'mongoose';
-import DeletedDocument from '../source/DeletedDocument';
-import DeletedQuery from '../source/DeletedQuery';
-import DeletedModel from '../source/DeletedModel';
+import { HydratedDocument, Model } from 'mongoose';
+import { Deleted, DeletedInstanceMethods, DeletedMethods, DeletedQueryHelpers } from '../source';
 import setupModel from './utils/setupModel';
 import dropModel from './utils/dropModel';
 
-type TestDocument = Document & DeletedDocument & { name: string };
-type TestModel = Model<TestDocument, DeletedQuery<TestDocument>> & DeletedModel<TestDocument>;
+type Test = { name: string } & Deleted;
+type TestQueryHelpers = DeletedQueryHelpers<Test>;
+type TestModel = Model<Test, TestQueryHelpers, DeletedMethods> & DeletedInstanceMethods<Test, TestQueryHelpers>;
+type TestDocument = HydratedDocument<Test, DeletedMethods>;
 
 describe('method return signature', function() {
 	let TestModel: TestModel;
 	before(function() {
-		TestModel = setupModel<TestDocument, TestModel>('TestReturnSignature', { name: String });
+		TestModel = setupModel<Test, TestModel>('TestReturnSignature', { name: String });
 	});
 
 	after(async function() {

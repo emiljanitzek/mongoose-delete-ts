@@ -1,11 +1,43 @@
-import { Callback, FilterQuery, Model, QueryOptions, Schema, Types, UpdateWriteOpResult } from 'mongoose';
+import {
+	Callback,
+	FilterQuery,
+	Model,
+	QueryOptions,
+	QueryWithHelpers,
+	Types,
+	UpdateWriteOpResult
+} from 'mongoose';
+import DeletedSchema from './types/DeletedSchema';
 import getOverloadedArguments from './utils/getOverloadedArguments';
 import { staticDelete } from './utils/deleteDocument';
-import DeletedFieldOptions from './DeletedFieldOptions';
+import DeletedFieldOptions from './types/DeletedFieldOptions';
 import { staticRestore } from './utils/restoreDocument';
 import { DeleteResult } from 'mongodb';
 
-export default function(schema: Schema, deletedFieldOptions: DeletedFieldOptions): void {
+export interface DeletedInstanceMethods<T, TQueryHelpers={}> {
+	restoreOne(filter?: FilterQuery<T>, options?: QueryOptions | null, callbackArg?: Callback<T>): QueryWithHelpers<UpdateWriteOpResult, T, TQueryHelpers>;
+	restoreOne(filter?: FilterQuery<T>, callback?: Callback): QueryWithHelpers<UpdateWriteOpResult, T, TQueryHelpers>;
+	restoreOne(callback?: Callback): QueryWithHelpers<UpdateWriteOpResult, T, TQueryHelpers>;
+
+	restoreMany(filter?: FilterQuery<T>, options?: QueryOptions | null, callback?: Callback): QueryWithHelpers<UpdateWriteOpResult, T, TQueryHelpers>;
+	restoreMany(filter?: FilterQuery<T>, callback?: Callback): QueryWithHelpers<UpdateWriteOpResult, T, TQueryHelpers>;
+	restoreMany(callback?: Callback): QueryWithHelpers<UpdateWriteOpResult, T, TQueryHelpers>;
+}
+
+export interface DeletedByInstanceMethods<T, TUser = Types.ObjectId, TQueryHelpers={}> {
+	deleteManyByUser(user: TUser, filter?: FilterQuery<T>, options?: QueryOptions, callback?: Callback): QueryWithHelpers<DeleteResult, T, TQueryHelpers>;
+	deleteManyByUser(user: TUser, filter: FilterQuery<T>, callback: Callback): QueryWithHelpers<DeleteResult, T, TQueryHelpers>;
+	deleteManyByUser(user: TUser, callback: Callback): QueryWithHelpers<DeleteResult, T, TQueryHelpers>;
+
+	deleteOneByUser(user: TUser, filter?: FilterQuery<T>, options?: QueryOptions, callback?: Callback): QueryWithHelpers<DeleteResult, T, TQueryHelpers>;
+	deleteOneByUser(user: TUser, filter: FilterQuery<T>, callback: Callback): QueryWithHelpers<DeleteResult, T, TQueryHelpers>;
+	deleteOneByUser(user: TUser, callback: Callback): QueryWithHelpers<DeleteResult, T, TQueryHelpers>;
+}
+
+export default function(
+	schema: DeletedSchema,
+	deletedFieldOptions: DeletedFieldOptions
+): void {
 	schema.statics.deleteOne = async function<T>(filterArg?: FilterQuery<T>, optionsArg?: QueryOptions | null, callbackArg?: Callback) {
 		const [filter, options, callback] = getOverloadedArguments(filterArg, optionsArg, callbackArg);
 
@@ -50,14 +82,14 @@ export default function(schema: Schema, deletedFieldOptions: DeletedFieldOptions
 		Object.assign(options, { ignoreDeleted: true });
 
 		const update = staticRestore(deletedFieldOptions);
-		return Model.updateOne.apply(this, [filter, update, options, callback]);
+		return Model.updateOne.apply(this, [filter, update, options, callback]) as any;
 	};
 	schema.statics.restoreMany = function<T>(filterArg?: FilterQuery<T>, optionsArg?: QueryOptions | null, callbackArg?: Callback) {
 		const [filter, options, callback] = getOverloadedArguments(filterArg, optionsArg, callbackArg);
 		Object.assign(options, { ignoreDeleted: true });
 
 		const update = staticRestore(deletedFieldOptions);
-		return Model.updateMany.apply(this, [filter, update, options, callback]);
+		return Model.updateMany.apply(this, [filter, update, options, callback]) as any;
 	};
 }
 
