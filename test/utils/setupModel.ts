@@ -1,20 +1,25 @@
-import { DeleteOptions } from '../../source/DeleteOptions';
 import mongoose, { Schema, SchemaDefinition, SchemaDefinitionType, SchemaOptions } from 'mongoose';
-import mongooseDelete from '../../source';
+import deletedPlugin, {
+	Deleted,
+	DeletedMethods,
+	DeletedQueryHelpers,
+	DeletedStaticMethods,
+	DeleteOptions
+} from '../../source';
 
-export default function setupModel<TDocument, TModel>(
+export default function setupModel<T extends Deleted, TModel>(
 	modelName: string,
-	fields: SchemaDefinition<SchemaDefinitionType<TDocument>>,
+	fields: SchemaDefinition<SchemaDefinitionType<T>>,
 	deletedOptions: DeleteOptions = {},
-	schemaOptions: SchemaOptions = {}
+	schemaOptions: SchemaOptions<string, any, any, any> = {}
 ): TModel {
-	const TestSchema = new Schema<TDocument, TModel>(fields, {
+	const testSchema = new Schema<T, any, DeletedMethods, DeletedQueryHelpers<T>, any, DeletedStaticMethods<T>, any>(fields, {
 		collection: testCollectionName(modelName),
 		autoIndex: false,
 		...schemaOptions
 	});
-	TestSchema.plugin(mongooseDelete, deletedOptions);
-	return mongoose.model<TDocument, TModel>(modelName, TestSchema);
+	testSchema.plugin(deletedPlugin, deletedOptions);
+	return mongoose.model<T, TModel, DeletedQueryHelpers<T>>(modelName, testSchema);
 }
 
 export function testCollectionName(modelName: string): string {

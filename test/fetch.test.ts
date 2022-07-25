@@ -1,21 +1,20 @@
-import { Document, Model } from 'mongoose';
-import DeletedDocument from '../source/DeletedDocument';
-import DeletedQuery from '../source/DeletedQuery';
-import DeletedModel from '../source/DeletedModel';
+import { Model } from 'mongoose';
+import { Deleted, DeletedMethods, DeletedQueryHelpers, DeletedStaticMethods } from '../source';
 import { describe } from 'mocha';
 import setupModel from './utils/setupModel';
 import dropModel from './utils/dropModel';
 import { expect } from 'chai';
 import { expectModifiedCount, expectOk, expectUpsertedCount } from './utils/mongooseExpects';
 
-type TestDocument = Document & DeletedDocument & { name: string };
-type TestModel = Model<TestDocument, DeletedQuery<TestDocument>> & DeletedModel<TestDocument>;
+type Test = { name: string } & Deleted;
+type TestQueryHelpers = DeletedQueryHelpers<Test>;
+type TestModel = Model<Test, TestQueryHelpers, DeletedMethods> & DeletedStaticMethods<Test, TestQueryHelpers>;
 
 describe('fetch', function() {
 	let TestModel: TestModel;
 
 	before(async function() {
-		TestModel = setupModel<TestDocument, TestModel>('TestFetchDelete', { name: String });
+		TestModel = setupModel<Test, TestModel>('TestFetchDelete', { name: String });
 	});
 
 	beforeEach(async function() {

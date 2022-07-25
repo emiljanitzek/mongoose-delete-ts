@@ -1,11 +1,24 @@
-import { Schema } from 'mongoose';
+import { Callback, SaveOptions, Types } from 'mongoose';
+import DeletedSchema from './types/DeletedSchema';
 import deleteDocument from './utils/deleteDocument';
-import DeletedFieldOptions from './DeletedFieldOptions';
+import DeletedFieldOptions from './types/DeletedFieldOptions';
 import restoreDocument from './utils/restoreDocument';
-import { DeleteOptions } from './DeleteOptions';
+import { DeleteOptions } from './types/DeleteOptions';
+
+export interface DeletedMethods {
+	restore(options?: SaveOptions): Promise<this>
+	restore(options?: SaveOptions, fn?: Callback<this>): void;
+	restore(fn?: Callback<this>): void;
+}
+
+export interface DeletedByMethods<TUser = Types.ObjectId> {
+	deleteByUser(user: TUser, options?: SaveOptions): Promise<this>
+	deleteByUser(user: TUser, options?: SaveOptions, fn?: Callback<this>): void
+	deleteByUser(user: TUser, fn?: Callback<this>): void;
+}
 
 export default function(
-	schema: Schema,
+	schema: DeletedSchema,
 	options: DeleteOptions,
 	deletedFieldOptions: DeletedFieldOptions
 ): void {

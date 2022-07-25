@@ -1,8 +1,9 @@
 import { Aggregate, PipelineStage, Query, Schema } from 'mongoose';
-import DeletedDocument from './DeletedDocument';
-import { Methods } from './DeleteOptions';
+import DeletedDocument from './types/DeletedDocument';
+import DeletedSchema from './types/DeletedSchema';
+import { Methods } from './types/DeleteOptions';
 
-export default function(schema: Schema, methods?: Methods[] | boolean): void {
+export default function(schema: DeletedSchema, methods?: Methods[] | boolean): void {
 	schema.pre('save', function() {
 		if (typeof this.deleted === 'undefined') {
 			this.deleted = false;

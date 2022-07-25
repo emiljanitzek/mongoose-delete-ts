@@ -1,21 +1,20 @@
-import DeletedDocument, { DeletedAtDocument } from '../source/DeletedDocument';
-import { Document, Model } from 'mongoose';
-import DeletedQuery from '../source/DeletedQuery';
-import DeletedModel from '../source/DeletedModel';
+import { Deleted, DeletedAt, DeletedMethods, DeletedQueryHelpers, DeletedStaticMethods } from '../source';
+import { Model } from 'mongoose';
 import { describe } from 'mocha';
 import setupModel from './utils/setupModel';
 import dropModel from './utils/dropModel';
 import { expect } from 'chai';
 import { expectDeletedCount, expectMatchCount, expectOk } from './utils/mongooseExpects';
 
-type TestDeletedAtDocument = Document & DeletedDocument & DeletedAtDocument & { name: string };
-type TestDeletedAtModel = Model<TestDeletedAtDocument, DeletedQuery<TestDeletedAtDocument>> & DeletedModel<TestDeletedAtDocument>;
+type TestDeletedAt = { name: string } & Deleted & DeletedAt;
+type TestQueryHelpers = DeletedQueryHelpers<TestDeletedAt>;
+type TestDeletedAtModel = Model<TestDeletedAt, TestQueryHelpers, DeletedMethods> & DeletedStaticMethods<TestDeletedAt, TestQueryHelpers>;
 
 describe('deletedAt=true', function() {
 	let TestModel: TestDeletedAtModel;
 
 	before(async function() {
-		TestModel = setupModel<TestDeletedAtDocument, TestDeletedAtModel>(
+		TestModel = setupModel<TestDeletedAt, TestDeletedAtModel>(
 			'TestDeletedAt',
 			{ name: String },
 			{ deletedAt: true });
@@ -70,7 +69,7 @@ describe('deletedAt=deleted_at', function() {
 	let TestModel: TestDeletedAtModel;
 
 	before(async function() {
-		TestModel = setupModel<TestDeletedAtDocument, TestDeletedAtModel>(
+		TestModel = setupModel<TestDeletedAt, TestDeletedAtModel>(
 			'TestDeletedAtCustomField',
 			{ name: String },
 			{ deletedAt: 'deleted_at' });

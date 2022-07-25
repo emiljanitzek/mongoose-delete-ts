@@ -1,7 +1,8 @@
-import { Schema } from 'mongoose';
-import DeletedQuery from './DeletedQuery';
+import DeletedSchema from './types/DeletedSchema';
 
-export default function<T, M>(schema: Schema<T, M, {}, DeletedQuery<T>>): void {
+export default function(
+	schema: DeletedSchema
+): void {
 	schema.query.withDeleted = function() {
 		return this.setOptions({ ignoreDeleted: true });
 	};
