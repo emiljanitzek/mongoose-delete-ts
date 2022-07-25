@@ -1,7 +1,7 @@
+import Deleted from '../types/Deleted';
 import deletedProp from './deleteProp';
-import DeletedFieldOptions from '../DeletedFieldOptions';
+import DeletedFieldOptions from '../types/DeletedFieldOptions';
 import { UpdateQuery } from 'mongoose';
-import DeletedDocument from '../DeletedDocument';
 
 export default function deleteDocument<TUser>(
 	{ deletedAt, deletedBy }: DeletedFieldOptions,
@@ -17,7 +17,7 @@ export default function deleteDocument<TUser>(
 export function staticDelete<TUser>(
 	deletedFieldOptions: DeletedFieldOptions,
 	user?: TUser,
-): UpdateQuery<DeletedDocument> {
+): UpdateQuery<Deleted> {
 	return {
 		$set: deleteDocument(deletedFieldOptions, user)
 	};

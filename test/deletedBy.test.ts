@@ -1,21 +1,30 @@
-import DeletedDocument, { DeletedAtDocument, DeletedByDocument } from '../source/DeletedDocument';
-import { Document, Model, Types } from 'mongoose';
-import DeletedQuery from '../source/DeletedQuery';
-import DeletedModel, { DeletedByModel } from '../source/DeletedModel';
+import {
+	Deleted,
+	DeletedBy,
+	DeletedByMethods,
+	DeletedByStaticMethods,
+	DeletedMethods,
+	DeletedQueryHelpers,
+	DeletedStaticMethods
+} from '../source';
+import { Model, Types } from 'mongoose';
 import { describe } from 'mocha';
 import setupModel from './utils/setupModel';
 import dropModel from './utils/dropModel';
 import { expect } from 'chai';
 import { expectDeletedCount, expectMatchCount, expectOk } from './utils/mongooseExpects';
 
-type TestDeletedByDocument = Document & DeletedDocument & DeletedAtDocument & DeletedByDocument & { name: string };
-type TestDeletedByModel = Model<TestDeletedByDocument, DeletedQuery<TestDeletedByDocument>> & DeletedModel<TestDeletedByDocument> & DeletedByModel<TestDeletedByDocument>;
+type TestDeletedBy = { name: string } & Deleted & DeletedBy;
+type TestQueryHelpers = DeletedQueryHelpers<TestDeletedBy>;
+type TestDeletedByModel = Model<TestDeletedBy, TestQueryHelpers, DeletedMethods & DeletedByMethods> &
+	DeletedStaticMethods<TestDeletedBy, TestQueryHelpers> &
+	DeletedByStaticMethods<TestDeletedBy, Types.ObjectId, TestQueryHelpers>;
 
 describe('deletedAt=true', function() {
 	let TestModel: TestDeletedByModel;
 
 	before(async function() {
-		TestModel = setupModel<TestDeletedByDocument, TestDeletedByModel>(
+		TestModel = setupModel<TestDeletedBy, TestDeletedByModel>(
 			'TestDeletedBy',
 			{ name: String },
 			{ deletedBy: true });
@@ -72,7 +81,7 @@ describe('deletedBy=deleted_by', function() {
 	let TestModel: TestDeletedByModel;
 
 	before(async function() {
-		TestModel = setupModel<TestDeletedByDocument, TestDeletedByModel>(
+		TestModel = setupModel<TestDeletedBy, TestDeletedByModel>(
 			'TestDeletedByCustomField',
 			{ name: String },
 			{ deletedBy: 'deleted_by' });
@@ -103,14 +112,17 @@ describe('deletedBy=deleted_by', function() {
 });
 
 type User = { id: string }
-type TestDeletedByStringDocument = Document & DeletedDocument & DeletedAtDocument & DeletedByDocument<string, User> & { name: string };
-type TestDeletedByStringModel = Model<TestDeletedByStringDocument, DeletedQuery<TestDeletedByStringDocument>> & DeletedModel<TestDeletedByStringDocument> & DeletedByModel<TestDeletedByStringDocument, string>;
+type TestDeletedByString = { name: string } & Deleted & DeletedBy<User>;
+type TestDeletedByStringQueryHelpers = DeletedQueryHelpers<TestDeletedByString>;
+type TestDeletedByStringModel = Model<TestDeletedByString, TestDeletedByStringQueryHelpers, DeletedMethods & DeletedByMethods<string>> &
+	DeletedStaticMethods<TestDeletedByString, TestDeletedByStringQueryHelpers> &
+	DeletedByStaticMethods<TestDeletedByString, string, TestDeletedByStringQueryHelpers>;
 
 describe('deletedBy custom schema', function() {
 	let TestModel: TestDeletedByStringModel;
 
 	before(async function() {
-		TestModel = setupModel<TestDeletedByStringDocument, TestDeletedByStringModel>(
+		TestModel = setupModel<TestDeletedByString, TestDeletedByStringModel>(
 			'TestDeletedByCustomSchema',
 			{ name: String },
 			{ deletedBy: { name: 'deleted_by', type: String, get: (id: string) => { return id && { id }; } } });
