@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
-import { Types } from 'mongoose';
 import { DeletedByMethods, DeletedMethods } from '../methods';
 import Deleted from './Deleted';
 import DeletedAt from './DeletedAt';
@@ -18,7 +17,7 @@ export interface DeletedAtDocument extends DeletedAt {}
 /**
  * @deprecated use DeletedBy and DeletedByMethods
  */
-export interface DeletedByDocument<TUser = Types.ObjectId, TDeletedBy = TUser> extends
+export interface DeletedByDocument<TUser = any, TDeletedBy = TUser> extends
 	DeletedBy<TDeletedBy>,
 	DeletedByMethods<TUser> {}
 

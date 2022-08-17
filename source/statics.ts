@@ -4,7 +4,6 @@ import {
 	Model,
 	QueryOptions,
 	QueryWithHelpers,
-	Types,
 	UpdateWriteOpResult
 } from 'mongoose';
 import DeletedSchema from './types/DeletedSchema';
@@ -24,7 +23,7 @@ export interface DeletedStaticMethods<T, TQueryHelpers={}> {
 	restoreMany(callback?: Callback): QueryWithHelpers<UpdateWriteOpResult, T, TQueryHelpers>;
 }
 
-export interface DeletedByStaticMethods<T, TUser = Types.ObjectId, TQueryHelpers={}> {
+export interface DeletedByStaticMethods<T, TUser = any, TQueryHelpers={}> {
 	deleteManyByUser(user: TUser, filter?: FilterQuery<T>, options?: QueryOptions, callback?: Callback): QueryWithHelpers<DeleteResult, T, TQueryHelpers>;
 	deleteManyByUser(user: TUser, filter: FilterQuery<T>, callback: Callback): QueryWithHelpers<DeleteResult, T, TQueryHelpers>;
 	deleteManyByUser(user: TUser, callback: Callback): QueryWithHelpers<DeleteResult, T, TQueryHelpers>;
@@ -72,7 +71,7 @@ export default function(
 		const update = staticDelete(deletedFieldOptions);
 		return Model.findOneAndUpdate.apply(this, [filter, update, options, callback]);
 	};
-	schema.statics.findByIdAndDelete = function(id: Types.ObjectId | any, options?: QueryOptions | null, callback?: Callback) {
+	schema.statics.findByIdAndDelete = function(id: any, options?: QueryOptions | null, callback?: Callback) {
 		const update = staticDelete(deletedFieldOptions);
 		return Model.findByIdAndUpdate.apply(this, [id, update, options, callback] as any);
 	};

@@ -1,6 +1,4 @@
-import { Types } from 'mongoose';
-
-type DeletedBy<TDeletedBy = Types.ObjectId> = {
+type DeletedBy<TDeletedBy = any> = {
 	deletedBy: TDeletedBy;
 }
 

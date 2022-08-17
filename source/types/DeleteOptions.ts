@@ -1,4 +1,4 @@
-import { SchemaTypeOptions, Types } from 'mongoose';
+import { SchemaTypeOptions } from 'mongoose';
 
 export type Methods =  'count' | 'countDocuments' | 'find' | 'findOne' | 'findOneAndUpdate' | 'update' | 'updateOne' | 'updateMany' | 'aggregate';
 export type Properties = 'deleted' | 'deletedAt' | 'deletedBy';
@@ -9,7 +9,7 @@ type DeletedSchemaOptions<T> = Omit<SchemaTypeOptions<T>, 'alias'> & {
 
 export type DeletedField<T> = boolean | string | DeletedSchemaOptions<T>
 
-export type DeleteOptions<TUser = Types.ObjectId> = Partial<{
+export type DeleteOptions<TUser = any> = Partial<{
 	deleted: SchemaTypeOptions<boolean>,
 	deletedBy: DeletedField<TUser>;
 	deletedAt: DeletedField<Date>;
