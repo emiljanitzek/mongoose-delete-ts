@@ -1,4 +1,4 @@
-import { Callback, SaveOptions, Types } from 'mongoose';
+import { Callback, SaveOptions } from 'mongoose';
 import DeletedSchema from './types/DeletedSchema';
 import deleteDocument from './utils/deleteDocument';
 import DeletedFieldOptions from './types/DeletedFieldOptions';
@@ -11,7 +11,7 @@ export interface DeletedMethods {
 	restore(fn?: Callback<this>): void;
 }
 
-export interface DeletedByMethods<TUser = Types.ObjectId> {
+export interface DeletedByMethods<TUser = any> {
 	deleteByUser(user: TUser, options?: SaveOptions): Promise<this>
 	deleteByUser(user: TUser, options?: SaveOptions, fn?: Callback<this>): void
 	deleteByUser(user: TUser, fn?: Callback<this>): void;

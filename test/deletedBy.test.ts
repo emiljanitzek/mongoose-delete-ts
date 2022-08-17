@@ -14,9 +14,9 @@ import dropModel from './utils/dropModel';
 import { expect } from 'chai';
 import { expectDeletedCount, expectMatchCount, expectOk } from './utils/mongooseExpects';
 
-type TestDeletedBy = { name: string } & Deleted & DeletedBy;
+type TestDeletedBy = { name: string } & Deleted & DeletedBy<Types.ObjectId>;
 type TestQueryHelpers = DeletedQueryHelpers<TestDeletedBy>;
-type TestDeletedByModel = Model<TestDeletedBy, TestQueryHelpers, DeletedMethods & DeletedByMethods> &
+type TestDeletedByModel = Model<TestDeletedBy, TestQueryHelpers, DeletedMethods & DeletedByMethods<Types.ObjectId>> &
 	DeletedStaticMethods<TestDeletedBy, TestQueryHelpers> &
 	DeletedByStaticMethods<TestDeletedBy, Types.ObjectId, TestQueryHelpers>;
 
