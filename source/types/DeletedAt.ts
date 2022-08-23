@@ -1,5 +1,5 @@
 type DeletedAt = {
-	deletedAt: Date;
+	deletedAt?: Date;
 }
 
 export default DeletedAt;

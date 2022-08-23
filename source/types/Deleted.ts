@@ -1,5 +1,5 @@
 type Deleted = {
-	deleted: boolean;
+	deleted?: boolean;
 };
 
 export default Deleted;
