@@ -79,7 +79,10 @@ function deletedFieldOptions(
 		Object.assign(fieldOption, { alias: name });
 	}
 	if (typeof option === 'object') {
-		Object.assign(fieldOption, option, { alias: name });
+		Object.assign(fieldOption, option);
+		if (option.name && option.name !== name) {
+			Object.assign(fieldOption, { alias: name });
+		}
 	}
 
 	return fieldOption;

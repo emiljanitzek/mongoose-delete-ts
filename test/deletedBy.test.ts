@@ -1,3 +1,4 @@
+import * as crypto from 'crypto';
 import {
 	Deleted,
 	DeletedBy,
@@ -20,7 +21,7 @@ type TestDeletedByModel = Model<TestDeletedBy, TestQueryHelpers, DeletedMethods 
 	DeletedStaticMethods<TestDeletedBy, TestQueryHelpers> &
 	DeletedByStaticMethods<TestDeletedBy, Types.ObjectId, TestQueryHelpers>;
 
-describe('deletedAt=true', function() {
+describe('deletedBy=true', function() {
 	let TestModel: TestDeletedByModel;
 
 	before(async function() {
@@ -143,6 +144,38 @@ describe('deletedBy custom schema', function() {
 
 	it('restore() -> unset deletedAt', async function() {
 		const puffy = await TestModel.findOne({ name: 'Puffy1' }).withDeleted().orFail();
+
+		const success = await puffy.restore();
+
+		expect(success.deletedBy).to.not.exist;
+	});
+});
+
+describe('deletedBy object without alias', function() {
+	let TestModel: TestDeletedByStringModel;
+
+	before(async function() {
+		TestModel = setupModel<TestDeletedByString, TestDeletedByStringModel>(
+			'TestDeletedByWithoutAlias',
+			{ name: String },
+			{ deletedBy: { type: String } });
+	});
+
+	after(async function() {
+		await dropModel('TestDeletedByWithoutAlias');
+	});
+
+	it('deleteByUser() -> set deletedBy', async function() {
+		const puffy = await TestModel.create({ name: 'Daffy1' });
+
+		const userId = crypto.randomBytes(10).toString('hex');
+		const success = await puffy.deleteByUser(userId);
+
+		expect(success.deletedBy).to.equal(userId);
+	});
+
+	it('restore() -> unset deletedAt', async function() {
+		const puffy = await TestModel.findOne({ name: 'Daffy1' }).withDeleted().orFail();
 
 		const success = await puffy.restore();
 
