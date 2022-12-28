@@ -1,3 +1,18 @@
+## [v1.3.1]
+> December 28, 2022
+
+- Only add alias if name is different
+
+## [v1.3.0]
+> August 25, 2022
+
+- Make delete attributes optional
+
+## [v1.2.0]
+> August 16, 2022
+
+- Change type definition to not extend Document
+
 ## [v1.1.1]
 > July 14, 2022
 
