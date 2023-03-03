@@ -24,10 +24,10 @@ describe('deletedAt=true', function() {
 		await dropModel('TestDeletedAt');
 	});
 
-	it('delete() -> set deletedAt', async function() {
+	it('deleteOne() -> set deletedAt', async function() {
 		const puffy = await TestModel.create({ name: 'Puffy1' });
 
-		const success = await puffy.delete();
+		const success = await puffy.deleteOne();
 
 		expect(success.deletedAt).to.be.an('date');
 	});
@@ -45,10 +45,10 @@ describe('deletedAt=true', function() {
 		expect(puffy.deletedAt).to.be.an('date');
 	});
 
-	it('restore() -> unset deletedAt', async function() {
+	it('restoreOne() -> unset deletedAt', async function() {
 		const puffy = await TestModel.findOne({ name: 'Puffy1' }).withDeleted().orFail();
 
-		const success = await puffy.restore();
+		const success = await puffy.restoreOne();
 
 		expect(success.deletedAt).to.not.exist;
 	});
@@ -79,19 +79,19 @@ describe('deletedAt=deleted_at', function() {
 		await dropModel('TestDeletedAtCustomField');
 	});
 
-	it('delete() -> set deletedAt', async function() {
+	it('deleteOne() -> set deletedAt', async function() {
 		const puffy = await TestModel.create({ name: 'Puffy1' });
 
-		const success = await puffy.delete();
+		const success = await puffy.deleteOne();
 
 		expect(success.deletedAt).to.be.an('date');
 		expect(success.get('deleted_at')).to.be.an('date');
 	});
 
-	it('restore() -> unset deletedAt', async function() {
+	it('restoreOne() -> unset deletedAt', async function() {
 		const puffy = await TestModel.findOne({ name: 'Puffy1' }).withDeleted().orFail();
 
-		const success = await puffy.restore();
+		const success = await puffy.restoreOne();
 
 		expect(success.deletedAt).to.not.exist;
 		expect(success.get('deleted_at')).to.not.exist;

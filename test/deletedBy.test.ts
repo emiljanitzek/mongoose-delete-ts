@@ -35,11 +35,11 @@ describe('deletedBy=true', function() {
 		await dropModel('TestDeletedBy');
 	});
 
-	it('deleteByUser() -> set deletedBy', async function() {
+	it('deleteOneByUser() -> set deletedBy', async function() {
 		const puffy = await TestModel.create({ name: 'Puffy1' });
 
 		const userId = new Types.ObjectId();
-		const success = await puffy.deleteByUser(userId);
+		const success = await puffy.deleteOneByUser(userId);
 
 		expect(success.deletedBy).to.deep.equal(userId);
 	});
@@ -58,10 +58,10 @@ describe('deletedBy=true', function() {
 		expect(puffy.deletedBy).to.deep.equal(userId);
 	});
 
-	it('restore() -> unset deletedBy', async function() {
+	it('restoreOne() -> unset deletedBy', async function() {
 		const puffy = await TestModel.findOne({ name: 'Puffy1' }).withDeleted().orFail();
 
-		const success = await puffy.restore();
+		const success = await puffy.restoreOne();
 
 		expect(success.deletedBy).to.not.exist;
 	});
@@ -92,20 +92,20 @@ describe('deletedBy=deleted_by', function() {
 		await dropModel('TestDeletedByCustomField');
 	});
 
-	it('deleteByUser() -> set deletedBy', async function() {
+	it('deleteOneByUser() -> set deletedBy', async function() {
 		const puffy = await TestModel.create({ name: 'Puffy1' });
 
 		const userId = new Types.ObjectId();
-		const success = await puffy.deleteByUser(userId);
+		const success = await puffy.deleteOneByUser(userId);
 
 		expect(success.deletedBy).to.deep.equal(userId);
 		expect(success.get('deleted_by')).to.deep.equal(userId);
 	});
 
-	it('restore() -> unset deletedAt', async function() {
+	it('restoreOne() -> unset deletedAt', async function() {
 		const puffy = await TestModel.findOne({ name: 'Puffy1' }).withDeleted().orFail();
 
-		const success = await puffy.restore();
+		const success = await puffy.restoreOne();
 
 		expect(success.deletedBy).to.not.exist;
 		expect(success.get('deleted_by')).to.not.exist;
@@ -133,19 +133,19 @@ describe('deletedBy custom schema', function() {
 		await dropModel('TestDeletedByCustomSchema');
 	});
 
-	it('deleteByUser() -> set deletedBy', async function() {
+	it('deleteOneByUser() -> set deletedBy', async function() {
 		const puffy = await TestModel.create({ name: 'Puffy1' });
 
 		const userId = new Types.ObjectId().toString();
-		const success = await puffy.deleteByUser(userId);
+		const success = await puffy.deleteOneByUser(userId);
 
 		expect(success.deletedBy).to.deep.equal({ id: userId });
 	});
 
-	it('restore() -> unset deletedAt', async function() {
+	it('restoreOne() -> unset deletedAt', async function() {
 		const puffy = await TestModel.findOne({ name: 'Puffy1' }).withDeleted().orFail();
 
-		const success = await puffy.restore();
+		const success = await puffy.restoreOne();
 
 		expect(success.deletedBy).to.not.exist;
 	});
@@ -165,19 +165,19 @@ describe('deletedBy object without alias', function() {
 		await dropModel('TestDeletedByWithoutAlias');
 	});
 
-	it('deleteByUser() -> set deletedBy', async function() {
+	it('deleteOneByUser() -> set deletedBy', async function() {
 		const puffy = await TestModel.create({ name: 'Daffy1' });
 
 		const userId = crypto.randomBytes(10).toString('hex');
-		const success = await puffy.deleteByUser(userId);
+		const success = await puffy.deleteOneByUser(userId);
 
 		expect(success.deletedBy).to.equal(userId);
 	});
 
-	it('restore() -> unset deletedAt', async function() {
+	it('restoreOne() -> unset deletedAt', async function() {
 		const puffy = await TestModel.findOne({ name: 'Daffy1' }).withDeleted().orFail();
 
-		const success = await puffy.restore();
+		const success = await puffy.restoreOne();
 
 		expect(success.deletedBy).to.not.exist;
 	});

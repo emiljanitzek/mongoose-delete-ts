@@ -21,10 +21,10 @@ describe('simple delete', function() {
 		await dropModel('TestSimpleDelete');
 	});
 
-	it('delete() -> set deleted=true', async function() {
+	it('deleteOne() -> set deleted=true', async function() {
 		const puffy = await TestModel.create({ name: 'Puffy1' });
 
-		const success = await puffy.delete();
+		const success = await puffy.deleteOne();
 		expect(success.deleted).to.equal(true);
 		expect(success.deletedAt).to.not.exist;
 	});
@@ -60,9 +60,9 @@ describe('simple delete', function() {
 		expect(result.deleted).to.equal(true);
 	});
 
-	it('restore() -> set deleted=false', async function() {
+	it('restoreOne() -> set deleted=false', async function() {
 		const puffy = await TestModel.findOne({ name: 'Puffy1' }).withDeleted().orFail();
-		const success = await puffy.restore();
+		const success = await puffy.restoreOne();
 		expect(success.deleted).to.equal(false);
 	});
 
@@ -104,11 +104,11 @@ describe('delete with timestamps', function() {
 		await dropModel('TestDeleteWithTimestamps');
 	});
 
-	it('delete() -> will not change updatedAt', async function() {
+	it('deleteOne() -> will not change updatedAt', async function() {
 		const puffy = await TestModel.create({ name: 'Puffy1' });
 		const updatedAt = new Date(puffy.updatedAt);
 
-		const success = await puffy.delete();
+		const success = await puffy.deleteOne();
 		expect(success.deleted).to.equal(true);
 		expect(success.updatedAt).to.deep.equal(updatedAt);
 	});
@@ -124,11 +124,11 @@ describe('delete with timestamps', function() {
 		expect(result.updatedAt).to.deep.equal(updatedAt);
 	});
 
-	it('restore() -> will not change updatedAt', async function() {
+	it('restoreOne() -> will not change updatedAt', async function() {
 		const puffy = await TestModel.findOne({ name: 'Puffy1' }).withDeleted().orFail();
 		const updatedAt = new Date(puffy.updatedAt);
 
-		const success = await puffy.restore();
+		const success = await puffy.restoreOne();
 		expect(success.deleted).to.equal(false);
 		expect(success.updatedAt).to.deep.equal(updatedAt);
 	});
@@ -158,11 +158,11 @@ describe('delete with validateBeforeDelete', function() {
 		await dropModel('TestValidateBeforeDeleteFalse');
 	});
 
-	it('delete() -> will raise ValidationError error', async function() {
+	it('deleteOne() -> will raise ValidationError error', async function() {
 		const puffy = await TestModelTrue.create({ name: 'Puffy1' });
 		puffy.name = '';
 		try {
-			const doc = await puffy.delete();
+			const doc = await puffy.deleteOne();
 			expect(doc).to.not.exist;
 		} catch (error: unknown) {
 			expectError(error);
@@ -170,10 +170,10 @@ describe('delete with validateBeforeDelete', function() {
 		}
 	});
 
-	it('delete() -> will not raise ValidationError error', async function() {
+	it('deleteOne() -> will not raise ValidationError error', async function() {
 		const puffy = await TestModelFalse.create({ name: 'Puffy1' });
 		puffy.name = '';
-		const doc = await puffy.delete();
+		const doc = await puffy.deleteOne();
 		expect(doc.deleted).to.equal(true);
 	});
 });
@@ -190,7 +190,7 @@ describe('deleted schema options', function() {
 
 	it('use custom schema alias', async function() {
 		const puffy = await TestModel.create({ name: 'Puffy1' });
-		const result = await puffy.delete();
+		const result = await puffy.deleteOne();
 
 		expect(result.destroyed).to.equal(true);
 	});

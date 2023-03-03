@@ -27,15 +27,15 @@ describe('with type key', function() {
 		expect(puffy.deleted).to.equal(false);
 	});
 
-	it('delete() -> set deleted=true', async function() {
+	it('deleteOne() -> set deleted=true', async function() {
 		const puffy = await TestModel.findOne({ name: 'Puffy1' }).orFail();
-		const success = await puffy.delete();
+		const success = await puffy.deleteOne();
 		expect(success.deleted).to.equal(true);
 	});
 
-	it('restore() -> set deleted=false', async function() {
+	it('restoreOne() -> set deleted=false', async function() {
 		const puffy = await TestModel.findOne({ name: 'Puffy1' }).withDeleted().orFail();
-		const success = await puffy.restore();
+		const success = await puffy.restoreOne();
 		expect(success.deleted).to.equal(false);
 	});
 });
