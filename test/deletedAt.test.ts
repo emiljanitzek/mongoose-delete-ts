@@ -27,9 +27,12 @@ describe('deletedAt=true', function() {
 	it('deleteOne() -> set deletedAt', async function() {
 		const puffy = await TestModel.create({ name: 'Puffy1' });
 
-		const success = await puffy.deleteOne();
+		const result = await puffy.deleteOne();
+		expectOk(result);
+		expectDeletedCount(result, 1);
 
-		expect(success.deletedAt).to.be.an('date');
+		const doc = await TestModel.findById(puffy.id).withDeleted().orFail();
+		expect(doc.deletedAt).to.be.an('date');
 	});
 
 	it('deleteOne() -> set deletedAt', async function() {
@@ -41,15 +44,12 @@ describe('deletedAt=true', function() {
 		expectDeletedCount(result, 1);
 
 		const puffy = await TestModel.findOne({ name: 'Puffy2' }).withDeleted().orFail();
-
 		expect(puffy.deletedAt).to.be.an('date');
 	});
 
 	it('restoreOne() -> unset deletedAt', async function() {
 		const puffy = await TestModel.findOne({ name: 'Puffy1' }).withDeleted().orFail();
-
 		const success = await puffy.restoreOne();
-
 		expect(success.deletedAt).to.not.exist;
 	});
 
@@ -60,7 +60,6 @@ describe('deletedAt=true', function() {
 		expectMatchCount(result, 1);
 
 		const puffy = await TestModel.findOne({ name: 'Puffy2' }).withDeleted().orFail();
-
 		expect(puffy.deletedAt).to.not.exist;
 	});
 });
@@ -82,18 +81,21 @@ describe('deletedAt=deleted_at', function() {
 	it('deleteOne() -> set deletedAt', async function() {
 		const puffy = await TestModel.create({ name: 'Puffy1' });
 
-		const success = await puffy.deleteOne();
+		const result = await puffy.deleteOne();
+		expectOk(result);
+		expectDeletedCount(result, 1);
 
-		expect(success.deletedAt).to.be.an('date');
-		expect(success.get('deleted_at')).to.be.an('date');
+		const doc = await TestModel.findById(puffy.id).withDeleted().orFail();
+		expect(doc.deletedAt).to.be.an('date');
+		expect(doc.get('deleted_at')).to.be.an('date');
 	});
 
 	it('restoreOne() -> unset deletedAt', async function() {
 		const puffy = await TestModel.findOne({ name: 'Puffy1' }).withDeleted().orFail();
 
-		const success = await puffy.restoreOne();
+		const doc = await puffy.restoreOne();
 
-		expect(success.deletedAt).to.not.exist;
-		expect(success.get('deleted_at')).to.not.exist;
+		expect(doc.deletedAt).to.not.exist;
+		expect(doc.get('deleted_at')).to.not.exist;
 	});
 });

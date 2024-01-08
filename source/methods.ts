@@ -1,17 +1,24 @@
-import { SaveOptions } from 'mongoose';
+import { DeleteResult } from 'mongodb';
+import { Document, QueryWithHelpers, SaveOptions } from 'mongoose';
+
 import DeletedSchema from './types/DeletedSchema';
 import deleteDocument from './utils/deleteDocument';
 import DeletedFieldOptions from './types/DeletedFieldOptions';
 import restoreDocument from './utils/restoreDocument';
 import { DeleteOptions } from './types/DeleteOptions';
 
-export interface DeletedMethods {
-	deleteOne(saveOptions?: SaveOptions): Promise<this>;
-	restoreOne(saveOptions?: SaveOptions): Promise<this>;
+export interface DeletedMethods<T = any, TQueryHelpers = any, DocType = any> {
+	restoreOne(saveOptions?: SaveOptions): Promise<Document<T, TQueryHelpers, DocType>>;
 }
 
-export interface DeletedByMethods<TUser = any> {
-	deleteOneByUser(user: TUser, saveOptions?: SaveOptions): Promise<this>;
+export interface DeletedByMethods<TUser = any, T = any, TQueryHelpers = any, DocType = any> {
+	deleteOneByUser(user: TUser, saveOptions?: SaveOptions): QueryWithHelpers<
+		DeleteResult,
+		Document<T, TQueryHelpers, DocType>,
+		TQueryHelpers,
+		DocType,
+		'deleteOne'
+	>;
 }
 
 export default function(
@@ -19,13 +26,15 @@ export default function(
 	deleteOptions: DeleteOptions,
 	deletedFieldOptions: DeletedFieldOptions,
 ): void {
-	schema.methods.deleteOne = function(saveOptions?: SaveOptions) {
+	schema.methods.deleteOne = async function(saveOptions?: SaveOptions) {
 		this.set(deleteDocument(deletedFieldOptions));
-		return this.save(mergeArguments(deleteOptions, saveOptions));
+		await this.save(mergeArguments(deleteOptions, saveOptions));
+		return { acknowledged: true, deletedCount: 1 };
 	};
-	schema.methods.deleteOneByUser = function<TUser>(user: TUser, saveOptions?: SaveOptions) {
+	schema.methods.deleteOneByUser = async function<TUser>(user: TUser, saveOptions?: SaveOptions) {
 		this.set(deleteDocument(deletedFieldOptions, user));
-		return this.save(mergeArguments(deleteOptions, saveOptions));
+		await this.save(mergeArguments(deleteOptions, saveOptions));
+		return { acknowledged: true, deletedCount: 1 };
 	};
 	schema.methods.restoreOne = function(saveOptions?: SaveOptions) {
 		this.set(restoreDocument(deletedFieldOptions));

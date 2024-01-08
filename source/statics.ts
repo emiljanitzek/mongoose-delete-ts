@@ -1,3 +1,4 @@
+import { DeleteResult } from 'mongodb';
 import {
 	FilterQuery,
 	Model,
@@ -5,12 +6,12 @@ import {
 	QueryWithHelpers,
 	UpdateWriteOpResult,
 } from 'mongoose';
+
 import DeletedSchema from './types/DeletedSchema';
 import getOverloadedArguments from './utils/getOverloadedArguments';
 import { staticDelete } from './utils/deleteDocument';
 import DeletedFieldOptions from './types/DeletedFieldOptions';
 import { staticRestore } from './utils/restoreDocument';
-import { DeleteResult } from 'mongodb';
 
 export interface DeletedStaticMethods<T, TQueryHelpers={}> {
 	restoreOne(filter?: FilterQuery<T>, options?: QueryOptions | null): QueryWithHelpers<UpdateWriteOpResult, T, TQueryHelpers>;

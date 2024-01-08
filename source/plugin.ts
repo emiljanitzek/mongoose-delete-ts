@@ -1,4 +1,5 @@
 import { Schema, SchemaTypeOptions } from 'mongoose';
+
 import DeletedFieldOptions from './types/DeletedFieldOptions';
 import DeletedSchema from './types/DeletedSchema';
 import { DeletedField, DeleteOptions, Properties } from './types/DeleteOptions';

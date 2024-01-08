@@ -1,4 +1,5 @@
-import { Aggregate, PipelineStage, Query, Schema } from 'mongoose';
+import { Aggregate, PipelineStage, Query } from 'mongoose';
+
 import DeletedDocument from './types/DeletedDocument';
 import DeletedSchema from './types/DeletedSchema';
 import { Methods } from './types/DeleteOptions';

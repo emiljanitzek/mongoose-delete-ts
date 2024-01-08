@@ -23,17 +23,24 @@ describe('simple delete', function() {
 
 	it('deleteOne() -> set deleted=true', async function() {
 		const puffy = await TestModel.create({ name: 'Puffy1' });
+		const result = await puffy.deleteOne();
 
-		const success = await puffy.deleteOne();
-		expect(success.deleted).to.equal(true);
-		expect(success.deletedAt).to.not.exist;
+		expectOk(result);
+		expectDeletedCount(result, 1);
+
+		const doc = await TestModel.findById(puffy.id).withDeleted().orFail();
+		expect(doc.deleted).to.equal(true);
 	});
 
 	it('deleteOne() -> set deleted=true', async function() {
-		await TestModel.create({ name: 'Puffy2' });
+		const puffy = await TestModel.create({ name: 'Puffy2' });
 		const result = await TestModel.deleteOne({ name: 'Puffy2' });
+
 		expectOk(result);
 		expectDeletedCount(result, 1);
+
+		const doc = await TestModel.findById(puffy.id).withDeleted().orFail();
+		expect(doc.deleted).to.equal(true);
 	});
 
 	it('deleteMany() -> set deleted=true', async function() {
@@ -108,20 +115,25 @@ describe('delete with timestamps', function() {
 		const puffy = await TestModel.create({ name: 'Puffy1' });
 		const updatedAt = new Date(puffy.updatedAt);
 
-		const success = await puffy.deleteOne();
-		expect(success.deleted).to.equal(true);
-		expect(success.updatedAt).to.deep.equal(updatedAt);
+		const result = await puffy.deleteOne();
+		expectOk(result);
+		expectDeletedCount(result, 1);
+
+		const doc = await TestModel.findById(puffy.id).withDeleted().orFail();
+		expect(doc.updatedAt).to.deep.equal(updatedAt);
 	});
 
 	it('deleteOne() -> will not change updatedAt', async function() {
 		const puffy = await TestModel.create({ name: 'Puffy2' });
 		const updatedAt = new Date(puffy.updatedAt);
 
-		await TestModel.deleteOne({ name: 'Puffy2' });
+		const result = await TestModel.deleteOne({ name: 'Puffy2' });
+		expectOk(result);
+		expectDeletedCount(result, 1);
 
-		const result = await TestModel.findOne({ name: 'Puffy2' }).withDeleted().orFail();
-		expect(result.deleted).to.equal(true);
-		expect(result.updatedAt).to.deep.equal(updatedAt);
+		const doc = await TestModel.findById(puffy.id).withDeleted().orFail();
+		expect(doc.deleted).to.equal(true);
+		expect(doc.updatedAt).to.deep.equal(updatedAt);
 	});
 
 	it('restoreOne() -> will not change updatedAt', async function() {
@@ -162,8 +174,8 @@ describe('delete with validateBeforeDelete', function() {
 		const puffy = await TestModelTrue.create({ name: 'Puffy1' });
 		puffy.name = '';
 		try {
-			const doc = await puffy.deleteOne();
-			expect(doc).to.not.exist;
+			const result = await puffy.deleteOne();
+			expectDeletedCount(result, 0);
 		} catch (error: unknown) {
 			expectError(error);
 			expect(error.name).to.equal('ValidationError');
@@ -173,8 +185,9 @@ describe('delete with validateBeforeDelete', function() {
 	it('deleteOne() -> will not raise ValidationError error', async function() {
 		const puffy = await TestModelFalse.create({ name: 'Puffy1' });
 		puffy.name = '';
-		const doc = await puffy.deleteOne();
-		expect(doc.deleted).to.equal(true);
+		const result = await puffy.deleteOne();
+		expectOk(result);
+		expectDeletedCount(result, 1);
 	});
 });
 
@@ -192,7 +205,11 @@ describe('deleted schema options', function() {
 		const puffy = await TestModel.create({ name: 'Puffy1' });
 		const result = await puffy.deleteOne();
 
-		expect(result.destroyed).to.equal(true);
+		expectOk(result);
+		expectDeletedCount(result, 1);
+
+		const doc = await TestModel.findById(puffy.id).withDeleted().orFail();
+		expect(doc.destroyed).to.equal(true);
 	});
 });
 
