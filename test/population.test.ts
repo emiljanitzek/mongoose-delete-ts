@@ -6,12 +6,16 @@ import dropModel from './utils/dropModel';
 import { expect } from 'chai';
 
 type ParentTest = { name: string, child: Types.ObjectId } & Deleted;
-type ParentTestQueryHelpers = DeletedQueryHelpers<ParentTest>;
-type ParentTestModel = Model<ParentTest, ParentTestQueryHelpers, DeletedMethods> & DeletedStaticMethods<ParentTest, ParentTestQueryHelpers>;
+type ParentTestQueryHelpers<T extends ParentTest = ParentTest> = DeletedQueryHelpers<T>;
+type ParentTestModel<TRawDocType extends ParentTest = ParentTest> =
+	Model<TRawDocType, ParentTestQueryHelpers<TRawDocType>, DeletedMethods> &
+	DeletedStaticMethods<TRawDocType, ParentTestQueryHelpers<TRawDocType>>;
 
 type ChildTest = { name: string } & Deleted;
-type ChildTestQueryHelpers = DeletedQueryHelpers<ChildTest>;
-type ChildTestModel = Model<ChildTest, ChildTestQueryHelpers, DeletedMethods> & DeletedStaticMethods<ChildTest, ChildTestQueryHelpers>;
+type ChildTestQueryHelpers<T extends ChildTest = ChildTest> = DeletedQueryHelpers<T>;
+type ChildTestModel<TRawDocType extends ChildTest = ChildTest> =
+	Model<TRawDocType, ChildTestQueryHelpers<TRawDocType>, DeletedMethods> &
+	DeletedStaticMethods<TRawDocType, ChildTestQueryHelpers<TRawDocType>>;
 
 describe('population', function() {
 	let ParentTestModel: ParentTestModel;

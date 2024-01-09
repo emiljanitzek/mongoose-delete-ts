@@ -1,14 +1,16 @@
 import { expect } from 'chai';
-import { Deleted, DeletedMethods, DeletedQueryHelpers, DeletedStaticMethods } from '../source';
-import { Model } from 'mongoose';
 import { describe } from 'mocha';
+import { Model } from 'mongoose';
+
+import { Deleted, DeletedMethods, DeletedQueryHelpers, DeletedStaticMethods } from '../source';
 import setupModel from './utils/setupModel';
 import dropModel from './utils/dropModel';
 import { expectDeletedCount, expectModifiedCount, expectOk } from './utils/mongooseExpects';
 
 type Test = { name: string } & Deleted;
-type TestQueryHelpers = DeletedQueryHelpers<Test>;
-type TestModel = Model<Test, TestQueryHelpers, DeletedMethods> & DeletedStaticMethods<Test, TestQueryHelpers>;
+type TestQueryHelpers<T extends Test = Test> = DeletedQueryHelpers<T>;
+type TestModel<TRawDocType extends Test = Test> =
+	Model<TRawDocType, TestQueryHelpers<TRawDocType>, DeletedMethods> & DeletedStaticMethods<TRawDocType, TestQueryHelpers<TRawDocType>>;
 
 describe('simple delete', function() {
 	let TestModel: TestModel;
@@ -69,8 +71,8 @@ describe('simple delete', function() {
 
 	it('restoreOne() -> set deleted=false', async function() {
 		const puffy = await TestModel.findOne({ name: 'Puffy1' }).withDeleted().orFail();
-		const success = await puffy.restoreOne();
-		expect(success.deleted).to.equal(false);
+		const doc = await puffy.restoreOne();
+		expect(doc.deleted).to.equal(false);
 	});
 
 	it('restoreOne() -> set deleted=false', async function() {
@@ -140,9 +142,9 @@ describe('delete with timestamps', function() {
 		const puffy = await TestModel.findOne({ name: 'Puffy1' }).withDeleted().orFail();
 		const updatedAt = new Date(puffy.updatedAt);
 
-		const success = await puffy.restoreOne();
-		expect(success.deleted).to.equal(false);
-		expect(success.updatedAt).to.deep.equal(updatedAt);
+		const doc = await puffy.restoreOne();
+		expect(doc.deleted).to.equal(false);
+		expect(doc.updatedAt).to.deep.equal(updatedAt);
 	});
 
 	it('restoreOne() -> will not change updatedAt', async function() {
@@ -192,10 +194,11 @@ describe('delete with validateBeforeDelete', function() {
 });
 
 describe('deleted schema options', function() {
-	let TestModel: TestModel;
+	type TestDeletedAlias = Test & { readonly destroyed: boolean };
+	let TestModel: TestModel<TestDeletedAlias>;
 
 	before(async function() {
-		TestModel = setupModel<Test, TestModel>('TestSchemaOptions', { name: String }, { deleted: { alias: 'destroyed' } });
+		TestModel = setupModel<TestDeletedAlias, TestModel<TestDeletedAlias>>('TestSchemaOptions', { name: String }, { deleted: { alias: 'destroyed' } });
 	});
 	after(async function() {
 		await dropModel('TestSchemaOptions');

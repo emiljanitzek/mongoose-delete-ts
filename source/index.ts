@@ -10,6 +10,6 @@ export { DeleteOptions } from './types/DeleteOptions';
 
 export { DeletedMethods, DeletedByMethods } from './methods';
 export { DeletedStaticMethods, DeletedByStaticMethods } from './statics';
-export { default as DeletedQuery, DeletedQueryHelpers }  from './types/DeletedQuery';
+export { default as DeletedQueryWithHelpers, DeletedQueryHelpers }  from './types/DeletedQuery';
 
 export default deletedPlugin;

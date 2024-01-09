@@ -16,10 +16,11 @@ import { expect } from 'chai';
 import { expectDeletedCount, expectMatchCount, expectOk } from './utils/mongooseExpects';
 
 type TestDeletedBy = { name: string } & Deleted & DeletedBy<Types.ObjectId>;
-type TestQueryHelpers = DeletedQueryHelpers<TestDeletedBy>;
-type TestDeletedByModel = Model<TestDeletedBy, TestQueryHelpers, DeletedMethods & DeletedByMethods<Types.ObjectId>> &
-	DeletedStaticMethods<TestDeletedBy, TestQueryHelpers> &
-	DeletedByStaticMethods<TestDeletedBy, Types.ObjectId, TestQueryHelpers>;
+type TestQueryHelpers<T extends TestDeletedBy = TestDeletedBy> = DeletedQueryHelpers<T>;
+type TestDeletedByModel<TRawDocType extends TestDeletedBy = TestDeletedBy> =
+	Model<TRawDocType, TestQueryHelpers<TRawDocType>, DeletedMethods & DeletedByMethods<Types.ObjectId, any, any, TRawDocType>> &
+	DeletedStaticMethods<TRawDocType, TestQueryHelpers<TRawDocType>> &
+	DeletedByStaticMethods<TRawDocType, Types.ObjectId, TestQueryHelpers<TRawDocType>>;
 
 describe('deletedBy=true', function() {
 	let TestModel: TestDeletedByModel;

@@ -6,8 +6,9 @@ import setupModel from './utils/setupModel';
 import dropModel from './utils/dropModel';
 
 type Test = { name: string } & Deleted;
-type TestQueryHelpers = DeletedQueryHelpers<Test>;
-type TestModel = Model<Test, TestQueryHelpers, DeletedMethods> & DeletedStaticMethods<Test, TestQueryHelpers>;
+type TestQueryHelpers<T extends Test = Test> = DeletedQueryHelpers<T>;
+type TestModel<TRawDocType extends Test = Test> =
+	Model<TRawDocType, TestQueryHelpers<TRawDocType>, DeletedMethods> & DeletedStaticMethods<TRawDocType, TestQueryHelpers<TRawDocType>>;
 
 describe('method return signature', function() {
 	let TestModel: TestModel;

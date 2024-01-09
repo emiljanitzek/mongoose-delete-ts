@@ -1,12 +1,12 @@
-import { HydratedDocument, Query } from 'mongoose';
+import { HydratedDocument, QueryWithHelpers } from 'mongoose';
 import Deleted from './Deleted';
 
-type DeletedQuery<T extends Deleted, TDoc = HydratedDocument<T, any, any>> = Query<any, TDoc, DeletedQueryHelpers<T, TDoc>> & DeletedQueryHelpers<T, TDoc>;
+type DeletedQueryWithHelpers<T extends Deleted, TDoc = HydratedDocument<T, any, any>> = QueryWithHelpers<any, TDoc, DeletedQueryHelpers<T, TDoc>, T>;
 
 export interface DeletedQueryHelpers<T extends Deleted, TDoc = HydratedDocument<T, any, any>> {
-	withDeleted(this: DeletedQuery<T, TDoc>): this
-	notDeleted(this: DeletedQuery<T, TDoc>): this
-	onlyDeleted(this: DeletedQuery<T, TDoc>): this
+	withDeleted(this: DeletedQueryWithHelpers<T, TDoc>): this
+	notDeleted(this: DeletedQueryWithHelpers<T, TDoc>): this
+	onlyDeleted(this: DeletedQueryWithHelpers<T, TDoc>): this
 }
 
-export default DeletedQuery;
+export default DeletedQueryWithHelpers;

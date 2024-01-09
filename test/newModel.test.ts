@@ -6,8 +6,9 @@ import dropModel from './utils/dropModel';
 import { expect } from 'chai';
 
 type Test = { name: string } & Deleted;
-type TestQueryHelpers = DeletedQueryHelpers<Test>;
-type TestModel = Model<Test, TestQueryHelpers, DeletedMethods> & DeletedStaticMethods<Test, TestQueryHelpers>;
+type TestQueryHelpers<T extends Test = Test> = DeletedQueryHelpers<T>;
+type TestModel<TRawDocType extends Test = Test> =
+	Model<TRawDocType, TestQueryHelpers<TRawDocType>, DeletedMethods> & DeletedStaticMethods<TRawDocType, TestQueryHelpers<TRawDocType>>;
 
 describe('new model', function() {
 	let TestModel: TestModel;
@@ -28,8 +29,8 @@ describe('new model', function() {
 
 		it('save() -> set deleted=false', async function() {
 			const puffy = new TestModel({ name: 'Puffy2' });
-			const success = await puffy.save();
-			expect(success.deleted).to.equal(false);
+			const doc = await puffy.save();
+			expect(doc.deleted).to.equal(false);
 		});
 
 		it('insertMany() -> set deleted=false', async function() {

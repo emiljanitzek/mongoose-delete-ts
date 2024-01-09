@@ -6,8 +6,9 @@ import dropModel from './utils/dropModel';
 import { expect } from 'chai';
 
 type Test = { name: string } & Deleted;
-type TestQueryHelpers = DeletedQueryHelpers<Test>;
-type TestModel = Model<Test, TestQueryHelpers, DeletedMethods> & DeletedStaticMethods<Test, TestQueryHelpers>;
+type TestQueryHelpers<T extends Test = Test> = DeletedQueryHelpers<T>;
+type TestModel<TRawDocType extends Test = Test> =
+	Model<TRawDocType, TestQueryHelpers<TRawDocType>, DeletedMethods> & DeletedStaticMethods<TRawDocType, TestQueryHelpers<TRawDocType>>;
 
 describe('with type key', function() {
 	let TestModel: TestModel;
@@ -35,7 +36,7 @@ describe('with type key', function() {
 
 	it('restoreOne() -> set deleted=false', async function() {
 		const puffy = await TestModel.findOne({ name: 'Puffy1' }).withDeleted().orFail();
-		const success = await puffy.restoreOne();
-		expect(success.deleted).to.equal(false);
+		const doc = await puffy.restoreOne();
+		expect(doc.deleted).to.equal(false);
 	});
 });

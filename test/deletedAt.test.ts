@@ -7,8 +7,9 @@ import { expect } from 'chai';
 import { expectDeletedCount, expectMatchCount, expectOk } from './utils/mongooseExpects';
 
 type TestDeletedAt = { name: string } & Deleted & DeletedAt;
-type TestQueryHelpers = DeletedQueryHelpers<TestDeletedAt>;
-type TestDeletedAtModel = Model<TestDeletedAt, TestQueryHelpers, DeletedMethods> & DeletedStaticMethods<TestDeletedAt, TestQueryHelpers>;
+type TestQueryHelpers<T extends TestDeletedAt = TestDeletedAt> = DeletedQueryHelpers<T>;
+type TestDeletedAtModel<TRawDocType extends TestDeletedAt = TestDeletedAt> =
+	Model<TRawDocType, TestQueryHelpers<TRawDocType>, DeletedMethods> & DeletedStaticMethods<TRawDocType, TestQueryHelpers<TRawDocType>>;
 
 describe('deletedAt=true', function() {
 	let TestModel: TestDeletedAtModel;
@@ -49,8 +50,8 @@ describe('deletedAt=true', function() {
 
 	it('restoreOne() -> unset deletedAt', async function() {
 		const puffy = await TestModel.findOne({ name: 'Puffy1' }).withDeleted().orFail();
-		const success = await puffy.restoreOne();
-		expect(success.deletedAt).to.not.exist;
+		const doc = await puffy.restoreOne();
+		expect(doc.deletedAt).to.not.exist;
 	});
 
 	it('restoreOne() -> unset deletedAt', async function() {
