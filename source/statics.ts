@@ -14,6 +14,7 @@ import DeletedFieldOptions from './types/DeletedFieldOptions';
 import { staticRestore } from './utils/restoreDocument';
 
 export interface DeletedStaticMethods<T, TQueryHelpers={}> {
+	// Mongoose model has deleteMany static methods, but define here again because they have different parameters.
 	deleteMany(filter?: FilterQuery<T>, options?: MongooseUpdateOptions | null): QueryWithHelpers<
 		DeleteResult,
 		T,
@@ -29,6 +30,7 @@ export interface DeletedStaticMethods<T, TQueryHelpers={}> {
 		'deleteMany'
 	>;
 
+	// Mongoose model has deleteOne static methods, but define here again because they have different parameters.
 	deleteOne(filter?: FilterQuery<T>, options?: MongooseUpdateOptions | null): QueryWithHelpers<
 		DeleteResult,
 		T,
