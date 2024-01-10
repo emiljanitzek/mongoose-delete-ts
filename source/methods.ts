@@ -7,8 +7,8 @@ import DeletedFieldOptions from './types/DeletedFieldOptions';
 import restoreDocument from './utils/restoreDocument';
 import { DeleteOptions } from './types/DeleteOptions';
 
-export interface DeletedMethods<T = any, TQueryHelpers = any, DocType = any> {
-	restoreOne(saveOptions?: SaveOptions): Promise<Document<T, TQueryHelpers, DocType>>;
+export interface DeletedMethods {
+	restoreOne(this: Document, saveOptions?: SaveOptions): Promise<this>;
 }
 
 export interface DeletedByMethods<TUser = any, T = any, TQueryHelpers = any, DocType = any> {
@@ -36,6 +36,7 @@ export default function(
 		await this.save(mergeArguments(deleteOptions, saveOptions));
 		return { acknowledged: true, deletedCount: 1 };
 	};
+	// @ts-expect-error TypeScript recognizes `this` as `DeletedMethods`, but in fact `this` is Mongoose `Document`.
 	schema.methods.restoreOne = function(saveOptions?: SaveOptions) {
 		this.set(restoreDocument(deletedFieldOptions));
 		return this.save(mergeArguments(deleteOptions, saveOptions));

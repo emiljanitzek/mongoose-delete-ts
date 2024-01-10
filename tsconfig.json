@@ -2,6 +2,8 @@
   "extends": "@tsconfig/node18/tsconfig.json",
 
   "compilerOptions": {
+    "module": "CommonJS",
+    "moduleResolution": "node",
     "preserveConstEnums": true,
     "esModuleInterop": true
   },

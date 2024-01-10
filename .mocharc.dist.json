@@ -1,0 +1,11 @@
+{
+  "extension": [
+    "js"
+  ],
+  "spec": "dist/test/*",
+  "require": [
+    "dist/test/utils/hooks.js"
+  ],
+  "recursive": true,
+  "reporter": "spec"
+}

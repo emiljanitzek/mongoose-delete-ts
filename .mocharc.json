@@ -1,0 +1,12 @@
+{
+  "extension": [
+    "ts"
+  ],
+  "spec": "test/*.ts",
+  "require": [
+    "ts-node/register",
+    "test/utils/hooks.ts"
+  ],
+  "recursive": true,
+  "reporter": "spec"
+}
