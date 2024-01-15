@@ -1,6 +1,6 @@
 {
   "name": "mongoose-delete-ts",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Mongoose soft delete plugin",
   "author": "Emil Janitzek <emil@pixel2.se>",
   "main": "dist/source/index.js",
@@ -35,7 +35,7 @@
     "mongoose": "8.x"
   },
   "devDependencies": {
-    "@tsconfig/node18": "~18.2.2",
+    "@tsconfig/node20": "~20.1.2",
     "@types/chai": "~4.3.11",
     "@types/mocha": "~10.0.6",
     "@typescript-eslint/eslint-plugin": "~6.18.1",
