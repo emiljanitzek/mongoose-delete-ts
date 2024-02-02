@@ -13,7 +13,7 @@ export default function setupModel<T extends Deleted, TModel>(
 	deletedOptions: DeleteOptions = {},
 	schemaOptions: SchemaOptions<string, any, any, any> = {}
 ): TModel {
-	const testSchema = new Schema<T, any, DeletedMethods, DeletedQueryHelpers<T>, any, DeletedStaticMethods<T>, any>(fields, {
+	const testSchema = new Schema<T, any, DeletedMethods, DeletedQueryHelpers<T>, any, DeletedStaticMethods<T>, any, any>(fields, {
 		collection: testCollectionName(modelName),
 		autoIndex: false,
 		...schemaOptions

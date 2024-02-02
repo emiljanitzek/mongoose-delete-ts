@@ -1,12 +1,12 @@
 import { Schema, SchemaTypeOptions } from 'mongoose';
 
-import DeletedFieldOptions from './types/DeletedFieldOptions';
-import DeletedSchema from './types/DeletedSchema';
-import { DeletedField, DeleteOptions, Properties } from './types/DeleteOptions';
 import hooks from './hooks';
 import methods  from './methods';
 import query from './query';
 import statics  from './statics';
+import DeletedFieldOptions from './types/DeletedFieldOptions';
+import { DeletedField, DeleteOptions, Properties } from './types/DeleteOptions';
+import DeletedSchema from './types/DeletedSchema';
 
 export default function<TSchema extends DeletedSchema>(
 	schema: TSchema,

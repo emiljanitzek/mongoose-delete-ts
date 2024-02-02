@@ -1,7 +1,7 @@
 import { UpdateOptions } from 'mongodb';
-import { FilterQuery, MongooseSpecificQueryOptions } from 'mongoose';
+import { FilterQuery, MongooseQueryOptions } from 'mongoose';
 
-export interface MongooseUpdateOptions extends UpdateOptions, Omit<MongooseSpecificQueryOptions, 'lean'> {}
+export interface MongooseUpdateOptions extends UpdateOptions, Omit<MongooseQueryOptions, 'lean'> {}
 
 export default function getOverloadedArguments<T>(
 	filter?: FilterQuery<T>,
