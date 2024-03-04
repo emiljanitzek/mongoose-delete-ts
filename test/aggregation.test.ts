@@ -50,7 +50,7 @@ describe('aggregation', function() {
 	it('aggregate() -> with delete returns 2 document', async function() {
 		const documents = await TestModel.aggregate([
 			{ $match: { deleted: true } },
-			{ $project : { name: 1 } }
+			{ $project: { name: 1 } }
 		]);
 
 		expect(documents).to.have.lengthOf(2);
@@ -60,25 +60,45 @@ describe('aggregation', function() {
 		const documents = await TestModel.aggregate([
 			{ $match: { name: 'Obi-Wan Kenobi' } },
 			{ $match: { deleted: { $in: [true, false] } } },
-			{ $project : { name: 1 } }
+			{ $project: { name: 1 } }
 		]);
 
 		expect(documents).to.have.lengthOf(1);
 	});
 
-	it('aggregate() -> with onlyDeleted returns 2 document', async function() {
+	it('aggregate() -> with deleted true returns 2 document', async function() {
 		const documents = await TestModel.aggregate([
-			{ $project : { name: 1 } }
-		], { onlyDeleted: true } as any);
+			{ $match: { deleted: true } },
+			{ $project: { name: 1 } }
+		]);
 
 		expect(documents).to.have.lengthOf(2);
 	});
 
-	it('aggregate() -> with withDeleted returns 3 document', async function() {
+	it('aggregate() -> with deleted true/false returns 3 document', async function() {
 		const documents = await TestModel.aggregate([
-			{ $project : { name: 1 } }
-		], { withDeleted: true } as any);
+			{ $match: { deleted: { $in: [true, false] } } },
+			{ $project: { name: 1 } }
+		]);
 
 		expect(documents).to.have.lengthOf(3);
+	});
+
+	it('aggregate() -> with $or returns 2 documents', async function() {
+		const documents = await TestModel.aggregate([
+			{ 
+				$match: {
+					$or: [{
+						name: 'Obi-Wan Kenobi',
+						deleted: true
+					}, {
+						deleted: false
+					}]
+				}
+			},
+			{ $project: { name: 1 } }
+		]);
+
+		expect(documents).to.have.lengthOf(2);
 	});
 });

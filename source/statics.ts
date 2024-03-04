@@ -1,94 +1,95 @@
 import {
-	Callback,
 	FilterQuery,
 	Model,
+	MongooseQueryOptions,
 	QueryOptions,
 	QueryWithHelpers,
 	UpdateWriteOpResult
 } from 'mongoose';
 import DeletedSchema from './types/DeletedSchema';
-import getOverloadedArguments from './utils/getOverloadedArguments';
 import { staticDelete } from './utils/deleteDocument';
 import DeletedFieldOptions from './types/DeletedFieldOptions';
 import { staticRestore } from './utils/restoreDocument';
-import { DeleteResult } from 'mongodb';
+import { 
+	DeleteResult, 
+	DeleteOptions as MongoDbDeleteOptions,
+	UpdateOptions as MongoDbUpdateOptions
+} from 'mongodb';
+import { DeleteSchemaOptions } from './types/DeleteSchemaOptions';
+import mergeOptions from './utils/mergeOptions';
 
-export interface DeletedStaticMethods<T, TQueryHelpers={}> {
-	restoreOne(filter?: FilterQuery<T>, options?: QueryOptions | null, callbackArg?: Callback<T>): QueryWithHelpers<UpdateWriteOpResult, T, TQueryHelpers>;
-	restoreOne(filter?: FilterQuery<T>, callback?: Callback): QueryWithHelpers<UpdateWriteOpResult, T, TQueryHelpers>;
-	restoreOne(callback?: Callback): QueryWithHelpers<UpdateWriteOpResult, T, TQueryHelpers>;
+type DeleteOptions<RawDocType> = MongoDbDeleteOptions & Omit<MongooseQueryOptions<RawDocType>, 'lean' | 'timestamps'>;
+type UpdateOptions<RawDocType> = MongoDbUpdateOptions & Omit<MongooseQueryOptions<RawDocType>, 'lean'>;
 
-	restoreMany(filter?: FilterQuery<T>, options?: QueryOptions | null, callback?: Callback): QueryWithHelpers<UpdateWriteOpResult, T, TQueryHelpers>;
-	restoreMany(filter?: FilterQuery<T>, callback?: Callback): QueryWithHelpers<UpdateWriteOpResult, T, TQueryHelpers>;
-	restoreMany(callback?: Callback): QueryWithHelpers<UpdateWriteOpResult, T, TQueryHelpers>;
+export interface DeletedStaticMethods<DocType, THelpers = {}, RawDocType = DocType> {
+	restoreOne(
+		filter?: FilterQuery<RawDocType>, 
+		options?: UpdateOptions<RawDocType> | null
+	): QueryWithHelpers<UpdateWriteOpResult, DocType, THelpers, RawDocType, 'updateOne'>;
+
+	restoreMany(
+		filter?: FilterQuery<RawDocType>, 
+		options?: UpdateOptions<RawDocType> | null
+	): QueryWithHelpers<UpdateWriteOpResult, DocType, THelpers, RawDocType, 'updateMany'>;
 }
 
-export interface DeletedByStaticMethods<T, TUser = any, TQueryHelpers={}> {
-	deleteManyByUser(user: TUser, filter?: FilterQuery<T>, options?: QueryOptions, callback?: Callback): QueryWithHelpers<DeleteResult, T, TQueryHelpers>;
-	deleteManyByUser(user: TUser, filter: FilterQuery<T>, callback: Callback): QueryWithHelpers<DeleteResult, T, TQueryHelpers>;
-	deleteManyByUser(user: TUser, callback: Callback): QueryWithHelpers<DeleteResult, T, TQueryHelpers>;
+export interface DeletedByStaticMethods<DocType, TUser = any, THelpers = {}, RawDocType = DocType> {
+	deleteOneByUser(
+		user: TUser, 
+		filter?: FilterQuery<RawDocType>, 
+		options?: DeleteOptions<RawDocType> | null
+	): QueryWithHelpers<DeleteResult, DocType, THelpers, RawDocType, 'deleteOne'>;
 
-	deleteOneByUser(user: TUser, filter?: FilterQuery<T>, options?: QueryOptions, callback?: Callback): QueryWithHelpers<DeleteResult, T, TQueryHelpers>;
-	deleteOneByUser(user: TUser, filter: FilterQuery<T>, callback: Callback): QueryWithHelpers<DeleteResult, T, TQueryHelpers>;
-	deleteOneByUser(user: TUser, callback: Callback): QueryWithHelpers<DeleteResult, T, TQueryHelpers>;
+	deleteManyByUser(
+		user: TUser, 
+		filter?: FilterQuery<RawDocType>, 
+		options?: DeleteOptions<RawDocType> | null
+	): QueryWithHelpers<DeleteResult, DocType, THelpers, RawDocType, 'deleteMany'>;
 }
 
 export default function(
 	schema: DeletedSchema,
+	schemaOptions: DeleteSchemaOptions,
 	deletedFieldOptions: DeletedFieldOptions
 ): void {
-	schema.statics.deleteOne = async function<T>(filterArg?: FilterQuery<T>, optionsArg?: QueryOptions | null, callbackArg?: Callback) {
-		const [filter, options, callback] = getOverloadedArguments(filterArg, optionsArg, callbackArg);
-
+	schema.statics.deleteOne = async function<T>(this: Model<any>, filter?: FilterQuery<T>, options?: DeleteOptions<T> | null) {
 		const update = staticDelete(deletedFieldOptions);
-		const result = await Model.updateOne.apply(this, [filter, update, options, callback]);
+		const result = await this.updateOne.call(this, filter, update, mergeOptions(options, schemaOptions));
 		return convertToDeleteResult(result);
 	};
-	schema.statics.deleteMany = async function<T>(filterArg?: FilterQuery<T>, optionsArg?: QueryOptions | null, callbackArg?: Callback) {
-		const [filter, options, callback] = getOverloadedArguments(filterArg, optionsArg, callbackArg);
-
+	schema.statics.deleteMany = async function<T>(this: Model<any>, filter?: FilterQuery<T>, options?: DeleteOptions<T> | null) {
 		const update = staticDelete(deletedFieldOptions);
-		const result = await Model.updateMany.apply(this, [filter, update, options, callback]);
+		const result = await this.updateMany.call(this, filter, update, mergeOptions(options, schemaOptions));
 		return convertToDeleteResult(result);
 	};
 
-	schema.statics.deleteOneByUser = async function<TUser, T>(user: TUser, filterArg?: FilterQuery<T>, optionsArg?: QueryOptions | null, callbackArg?: Callback) {
-		const [filter, options, callback] = getOverloadedArguments(filterArg, optionsArg, callbackArg);
-
+	schema.statics.deleteOneByUser = async function<TUser, T>(this: Model<any>, user: TUser, filter?: FilterQuery<T>, options?: DeleteOptions<T> | null) {
 		const update = staticDelete(deletedFieldOptions, user);
-		const result = await Model.updateOne.apply(this, [filter, update, options, callback]);
+		const result = await this.updateOne.call(this, filter, update, mergeOptions(options, schemaOptions));
 		return convertToDeleteResult(result);
 	};
-	schema.statics.deleteManyByUser = async function<TUser, T>(user: TUser, filterArg?: FilterQuery<T>, optionsArg?: QueryOptions | null, callbackArg?: Callback) {
-		const [filter, options, callback] = getOverloadedArguments(filterArg, optionsArg, callbackArg);
-
+	schema.statics.deleteManyByUser = async function<TUser, T>(this: Model<any>, user: TUser, filter?: FilterQuery<T>, options?: DeleteOptions<T> | null) {
 		const update = staticDelete(deletedFieldOptions, user);
-		const result = await Model.updateMany.apply(this, [filter, update, options, callback]);
+		const result = await this.updateMany.call(this, filter, update, mergeOptions(options, schemaOptions));
 		return convertToDeleteResult(result);
 	};
 
-	schema.statics.findOneAndDelete = function<T>(filter?: FilterQuery<T>, options?: QueryOptions | null, callback?: Callback) {
+	schema.statics.findOneAndDelete = function<T>(this: Model<any>, filter?: FilterQuery<T>, options?: QueryOptions | null) {
 		const update = staticDelete(deletedFieldOptions);
-		return Model.findOneAndUpdate.apply(this, [filter, update, options, callback]);
+		return this.findOneAndUpdate.call(this, filter, update, mergeOptions(options, schemaOptions));
 	};
-	schema.statics.findByIdAndDelete = function(id: any, options?: QueryOptions | null, callback?: Callback) {
+	schema.statics.findByIdAndDelete = function(id: any, options?: QueryOptions | null) {
 		const update = staticDelete(deletedFieldOptions);
-		return Model.findByIdAndUpdate.apply(this, [id, update, options, callback] as any);
+		return this.findByIdAndUpdate.call(this, id, update, mergeOptions(options, schemaOptions));
 	};
 
-	schema.statics.restoreOne = function<T>(filterArg?: FilterQuery<T>, optionsArg?: QueryOptions | null, callbackArg?: Callback) {
-		const [filter, options, callback] = getOverloadedArguments(filterArg, optionsArg, callbackArg);
-		Object.assign(options, { ignoreDeleted: true });
-
+	schema.statics.restoreOne = function<T>(this: Model<any>, filter?: FilterQuery<T>, options?: UpdateOptions<T> | null) {
 		const update = staticRestore(deletedFieldOptions);
-		return Model.updateOne.apply(this, [filter, update, options, callback]) as any;
+		return this.updateOne.call(this, { ...filter, deleted: true }, update, mergeOptions(options, schemaOptions));
 	};
-	schema.statics.restoreMany = function<T>(filterArg?: FilterQuery<T>, optionsArg?: QueryOptions | null, callbackArg?: Callback) {
-		const [filter, options, callback] = getOverloadedArguments(filterArg, optionsArg, callbackArg);
-		Object.assign(options, { ignoreDeleted: true });
-
+	schema.statics.restoreMany = function<T>(this: Model<any>, filter?: FilterQuery<T>, options?: UpdateOptions<T> | null) {
 		const update = staticRestore(deletedFieldOptions);
-		return Model.updateMany.apply(this, [filter, update, options, callback]) as any;
+		return this.updateMany.call(this, { ...filter, deleted: true }, update, mergeOptions(options, schemaOptions));
 	};
 }
 

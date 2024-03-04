@@ -1,7 +1,7 @@
-import { Aggregate, PipelineStage, Query, Schema } from 'mongoose';
-import DeletedDocument from './types/DeletedDocument';
+import { Aggregate, PipelineStage, Query } from 'mongoose';
 import DeletedSchema from './types/DeletedSchema';
-import { Methods } from './types/DeleteOptions';
+import { Methods } from './types/DeleteSchemaOptions';
+import Deleted from './types/Deleted';
 
 export default function(schema: DeletedSchema, methods?: Methods[] | boolean): void {
 	schema.pre('save', function() {
@@ -12,10 +12,10 @@ export default function(schema: DeletedSchema, methods?: Methods[] | boolean): v
 
 	const allMethods = getMethodsFromOptions(methods);
 	if (allMethods.length > 0) {
-		schema.pre(allMethods as any, async function <T extends DeletedDocument>(
+		schema.pre(allMethods as any, async function <T extends Deleted>(
 			this: Query<unknown, T>
 		) {
-			if (deletedIsNotAlreadyInQuery(this) && notIgnoreDeletedInOptions(this)) {
+			if (deletedIsNotAlreadyInQuery(this)) {
 				this.where({ deleted: false });
 			}
 		});
@@ -25,9 +25,7 @@ export default function(schema: DeletedSchema, methods?: Methods[] | boolean): v
 		schema.pre('aggregate', async function(
 			this: Aggregate<unknown>
 		) {
-			if (onlyDeletedInOptions(this)) {
-				this.pipeline().unshift({ $match: { deleted: true } });
-			} else if (deletedIsNotAlreadyInAggregation(this) && notWithDeletedInOptions(this)) {
+			if (deletedIsNotAlreadyInAggregation(this)) {
 				this.pipeline().unshift({ $match: { deleted: false } });
 			}
 		});
@@ -40,7 +38,7 @@ function getMethodsFromOptions(methods?: Methods[] | boolean): string[] {
 	} else if (Array.isArray(methods)) {
 		return methods;
 	}
-	return ['find', 'findOne', 'findOneAndUpdate', 'count', 'update', 'updateOne', 'updateMany', 'countDocuments'];
+	return ['find', 'findOne', 'findOneAndUpdate', 'update', 'updateOne', 'updateMany', 'countDocuments'];
 }
 
 function hasAggregateInOption(methods?: Methods[] | boolean): boolean {
@@ -56,23 +54,20 @@ function deletedIsNotAlreadyInQuery<T>(query: Query<unknown, T>): boolean {
 	return typeof query.getQuery().deleted === 'undefined';
 }
 
-function notIgnoreDeletedInOptions<T>(query: Query<unknown, T>): boolean {
-	return query.getOptions().ignoreDeleted !== true;
-}
-
 function deletedIsNotAlreadyInAggregation(aggregation: Aggregate<unknown>): boolean {
 	const matches = aggregation.pipeline().filter(isPipelineMatch);
-	return !matches.some((match: PipelineStage.Match) => Object.keys(match['$match']).includes('deleted'));
+	return !matches.some((matchStage: PipelineStage.Match) => {
+		const match = matchStage['$match'];
+		const matchHasDeleted = Object.keys(match).includes('deleted');
+		if (matchHasDeleted) {
+			return true;
+		}
+
+		const nested = Object.entries(match).filter(([key]) => key === '$or' || key === '$and');
+		return nested.some(([,array]) => array.some((value: Record<string, unknown>) => Object.keys(value).includes('deleted')));
+	});
 }
 
 function isPipelineMatch(pipeline: PipelineStage): pipeline is PipelineStage.Match {
 	return Object.keys(pipeline).includes('$match');
-}
-
-function notWithDeletedInOptions(aggregation: Aggregate<unknown>): boolean {
-	return (aggregation as any).options?.withDeleted !== true;
-}
-
-function onlyDeletedInOptions(aggregation: Aggregate<unknown>): boolean {
-	return (aggregation as any).options?.onlyDeleted === true;
 }

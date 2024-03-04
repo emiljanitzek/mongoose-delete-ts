@@ -3,15 +3,11 @@ import DeletedSchema from './types/DeletedSchema';
 export default function(
 	schema: DeletedSchema
 ): void {
-	schema.query.withDeleted = function() {
-		return this.setOptions({ ignoreDeleted: true });
+	schema.query.allDocuments = function() {
+		return this.where({ deleted: { $in: [true, false] } });
 	};
 
-	schema.query.notDeleted = function() {
-		return this.where({ deleted: false });
-	};
-
-	schema.query.onlyDeleted = function() {
+	schema.query.deletedDocuments = function() {
 		return this.where({ deleted: true });
 	};
 }

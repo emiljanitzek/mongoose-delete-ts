@@ -1,7 +1,7 @@
 import { Schema, SchemaTypeOptions } from 'mongoose';
 import DeletedFieldOptions from './types/DeletedFieldOptions';
 import DeletedSchema from './types/DeletedSchema';
-import { DeletedField, DeleteOptions, Properties } from './types/DeleteOptions';
+import { DeletedField, DeleteSchemaOptions, Properties } from './types/DeleteSchemaOptions';
 import hooks from './hooks';
 import methods  from './methods';
 import query from './query';
@@ -9,7 +9,7 @@ import statics  from './statics';
 
 export default function<TSchema extends DeletedSchema>(
 	schema: TSchema,
-	options: DeleteOptions = {}
+	options: DeleteSchemaOptions = {}
 ): void {
 	const typeKey = schema.get('typeKey') || 'type';
 	const deletedFieldNames: DeletedFieldOptions = {};
@@ -48,7 +48,7 @@ export default function<TSchema extends DeletedSchema>(
 	hooks(schema, options.overrideMethods);
 	query(schema);
 	methods(schema, options, deletedFieldNames);
-	statics(schema, deletedFieldNames);
+	statics(schema, options, deletedFieldNames);
 }
 
 function hasDeletedField(option: DeletedField<unknown> | undefined): option is DeletedField<unknown> {

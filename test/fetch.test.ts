@@ -32,7 +32,7 @@ describe('fetch', function() {
 
 	describe('without deleted', function() {
 		it('count() -> returns 1 document', async function() {
-			const count = await TestModel.count();
+			const count = await TestModel.countDocuments();
 			expect(count).to.equal(1);
 		});
 
@@ -63,7 +63,7 @@ describe('fetch', function() {
 		});
 
 		it('findById() -> not return deleted document', async function() {
-			const pre = await TestModel.findOne({ name: 'Obi-Wan Kenobi' }).withDeleted().orFail();
+			const pre = await TestModel.findOne({ name: 'Obi-Wan Kenobi' }).allDocuments().orFail();
 			const item = await TestModel.findById(pre._id);
 			expect(item).to.be.null;
 		});
@@ -85,7 +85,7 @@ describe('fetch', function() {
 		});
 
 		it('findByIdAndUpdate() -> not find and update deleted document', async function() {
-			const pre = await TestModel.findOne({ name: 'Obi-Wan Kenobi' }).withDeleted().orFail();
+			const pre = await TestModel.findOne({ name: 'Obi-Wan Kenobi' }).allDocuments().orFail();
 			const doc = await TestModel.findByIdAndUpdate(pre._id, { name: 'Obi-Wan Kenobi Test' });
 			expect(doc).to.be.null;
 		});
@@ -117,61 +117,61 @@ describe('fetch', function() {
 
 	describe('only deleted', function() {
 		it('count() -> returns 2 document', async function() {
-			const count = await TestModel.count().onlyDeleted();
+			const count = await TestModel.countDocuments().deletedDocuments();
 			expect(count).to.equal(2);
 		});
 
 		it('countDocuments() -> returns 2 document', async function() {
-			const count = await TestModel.countDocuments().onlyDeleted();
+			const count = await TestModel.countDocuments().deletedDocuments();
 			expect(count).to.equal(2);
 		});
 
 		it('find() -> returns 2 document', async function() {
-			const items = await TestModel.find().onlyDeleted();
+			const items = await TestModel.find().deletedDocuments();
 			expect(items).to.have.lengthOf(2);
 		});
 
 		it('findOne() -> returns deleted document', async function() {
-			const item = await TestModel.findOne({ name: 'Obi-Wan Kenobi' }).onlyDeleted();
+			const item = await TestModel.findOne({ name: 'Obi-Wan Kenobi' }).deletedDocuments();
 			expect(item).to.not.be.null;
 		});
 
 		it('findOne() -> not return non-deleted document', async function() {
-			const item = await TestModel.findOne({ name: 'Darth Vader' }).onlyDeleted();
+			const item = await TestModel.findOne({ name: 'Darth Vader' }).deletedDocuments();
 			expect(item).to.be.null;
 		});
 
 		it('findById() -> not return non-deleted document', async function() {
 			const pre = await TestModel.findOne({ name: 'Darth Vader' }).orFail();
-			const item = await TestModel.findById(pre._id).onlyDeleted();
+			const item = await TestModel.findById(pre._id).deletedDocuments();
 			expect(item).to.be.null;
 		});
 
 		it('findById() -> return deleted document', async function() {
-			const pre = await TestModel.findOne({ name: 'Obi-Wan Kenobi' }).withDeleted().orFail();
-			const item = await TestModel.findById(pre._id).onlyDeleted();
+			const pre = await TestModel.findOne({ name: 'Obi-Wan Kenobi' }).allDocuments().orFail();
+			const item = await TestModel.findById(pre._id).deletedDocuments();
 			expect(item).to.not.be.null;
 		});
 
 		it('findOneAndUpdate() -> not find and update non-deleted document', async function() {
-			const doc = await TestModel.findOneAndUpdate({ name: 'Darth Vader' }, { name: 'Darth Vader Test' }).onlyDeleted();
+			const doc = await TestModel.findOneAndUpdate({ name: 'Darth Vader' }, { name: 'Darth Vader Test' }).deletedDocuments();
 			expect(doc).to.be.null;
 		});
 
 		it('findOneAndUpdate() -> find and update deleted document', async function() {
-			const doc = await TestModel.findOneAndUpdate({ name: 'Obi-Wan Kenobi' }, { name: 'Obi-Wan Kenobi Test' }).onlyDeleted();
+			const doc = await TestModel.findOneAndUpdate({ name: 'Obi-Wan Kenobi' }, { name: 'Obi-Wan Kenobi Test' }).deletedDocuments();
 			expect(doc).to.not.be.null;
 		});
 
 		it('findByIdAndUpdate() -> not find and update non-deleted document', async function() {
 			const pre = await TestModel.findOne({ name: 'Darth Vader' }).orFail();
-			const doc = await TestModel.findByIdAndUpdate(pre._id, { name: 'Darth Vader Test' }).onlyDeleted();
+			const doc = await TestModel.findByIdAndUpdate(pre._id, { name: 'Darth Vader Test' }).deletedDocuments();
 			expect(doc).to.be.null;
 		});
 
 		it('findByIdAndUpdate() -> find and update deleted document', async function() {
-			const pre = await TestModel.findOne({ name: 'Obi-Wan Kenobi' }).withDeleted().orFail();
-			const doc = await TestModel.findByIdAndUpdate(pre._id, { name: 'Obi-Wan Kenobi Test' }).onlyDeleted();
+			const pre = await TestModel.findOne({ name: 'Obi-Wan Kenobi' }).allDocuments().orFail();
+			const doc = await TestModel.findByIdAndUpdate(pre._id, { name: 'Obi-Wan Kenobi Test' }).deletedDocuments();
 			expect(doc).to.not.be.null;
 		});
 
@@ -196,62 +196,62 @@ describe('fetch', function() {
 
 	describe('with deleted', function() {
 		it('count() -> return 3 document', async function() {
-			const count = await TestModel.count().withDeleted();
+			const count = await TestModel.countDocuments().allDocuments();
 			expect(count).to.equal(3);
 		});
 
 		it('countDocuments() -> return 3 document', async function() {
-			const count = await TestModel.countDocuments().withDeleted();
+			const count = await TestModel.countDocuments().allDocuments();
 			expect(count).to.equal(3);
 		});
 
 		it('find() -> return 3 document', async function() {
-			const items = await TestModel.find().withDeleted();
+			const items = await TestModel.find().allDocuments();
 			expect(items.length).to.equal(3);
 		});
 
 		it('findOne() -> return deleted document', async function() {
-			const item = await TestModel.findOne({ name: 'Obi-Wan Kenobi' }).withDeleted().orFail();
+			const item = await TestModel.findOne({ name: 'Obi-Wan Kenobi' }).allDocuments().orFail();
 			expect(item).to.not.be.null;
 			expect(item.name).to.exist;
 		});
 
 		it('findOne() -> return non-deleted document', async function() {
-			const item = await TestModel.findOne({ name: 'Darth Vader' }).withDeleted();
+			const item = await TestModel.findOne({ name: 'Darth Vader' }).allDocuments();
 			expect(item).to.not.be.null;
 		});
 
 		it('findById() -> return non-deleted document', async function() {
 			const pre = await TestModel.findOne({ name: 'Darth Vader' }).orFail();
-			const item = await TestModel.findById(pre._id).withDeleted();
+			const item = await TestModel.findById(pre._id).allDocuments();
 			expect(item).to.not.be.null;
 		});
 
 		it('findById() -> return deleted document', async function() {
-			const pre = await TestModel.findOne({ name: 'Obi-Wan Kenobi' }).withDeleted().orFail();
-			const item = await TestModel.findById(pre._id).withDeleted();
+			const pre = await TestModel.findOne({ name: 'Obi-Wan Kenobi' }).allDocuments().orFail();
+			const item = await TestModel.findById(pre._id).allDocuments();
 			expect(item).to.not.be.null;
 		});
 
 		it('findOneAndUpdate() -> find and update non-deleted document', async function() {
-			const doc = await TestModel.findOneAndUpdate({ name: 'Darth Vader' }, { name: 'Darth Vader Test' }).withDeleted();
+			const doc = await TestModel.findOneAndUpdate({ name: 'Darth Vader' }, { name: 'Darth Vader Test' }).allDocuments();
 			expect(doc).to.not.be.null;
 		});
 
 		it('findOneAndUpdate() -> find and update deleted document', async function() {
-			const doc = await TestModel.findOneAndUpdate({ name: 'Obi-Wan Kenobi' }, { name: 'Obi-Wan Kenobi Test' }).withDeleted();
+			const doc = await TestModel.findOneAndUpdate({ name: 'Obi-Wan Kenobi' }, { name: 'Obi-Wan Kenobi Test' }).allDocuments();
 			expect(doc).to.not.be.null;
 		});
 
 		it('findByIdAndUpdate() -> find and update non-deleted document', async function() {
 			const pre = await TestModel.findOne({ name: 'Darth Vader' }).orFail();
-			const doc = await TestModel.findByIdAndUpdate(pre._id, { name: 'Darth Vader Test' }).withDeleted();
+			const doc = await TestModel.findByIdAndUpdate(pre._id, { name: 'Darth Vader Test' }).allDocuments();
 			expect(doc).to.not.be.null;
 		});
 
 		it('findByIdAndUpdate() -> find and update deleted document', async function() {
-			const pre = await TestModel.findOne({ name: 'Obi-Wan Kenobi' }).withDeleted().orFail();
-			const doc = await TestModel.findByIdAndUpdate(pre._id, { name: 'Obi-Wan Kenobi Test' }).withDeleted();
+			const pre = await TestModel.findOne({ name: 'Obi-Wan Kenobi' }).allDocuments().orFail();
+			const doc = await TestModel.findByIdAndUpdate(pre._id, { name: 'Obi-Wan Kenobi Test' }).allDocuments();
 			expect(doc).to.not.be.null;
 		});
 

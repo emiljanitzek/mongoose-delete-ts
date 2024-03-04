@@ -1,50 +1,36 @@
-import { Callback, SaveOptions } from 'mongoose';
+import { SaveOptions } from 'mongoose';
 import DeletedSchema from './types/DeletedSchema';
 import deleteDocument from './utils/deleteDocument';
 import DeletedFieldOptions from './types/DeletedFieldOptions';
 import restoreDocument from './utils/restoreDocument';
-import { DeleteOptions } from './types/DeleteOptions';
+import { DeleteSchemaOptions } from './types/DeleteSchemaOptions';
+import mergeOptions from './utils/mergeOptions';
 
+type DeleteOptions = Omit<SaveOptions, 'timestamps'>;
 export interface DeletedMethods {
-	restore(options?: SaveOptions): Promise<this>
-	restore(options?: SaveOptions, fn?: Callback<this>): void;
-	restore(fn?: Callback<this>): void;
+	delete(options?: DeleteOptions): Promise<this>
+	restore(options?: DeleteOptions): Promise<this>
 }
 
 export interface DeletedByMethods<TUser = any> {
-	deleteByUser(user: TUser, options?: SaveOptions): Promise<this>
-	deleteByUser(user: TUser, options?: SaveOptions, fn?: Callback<this>): void
-	deleteByUser(user: TUser, fn?: Callback<this>): void;
+	deleteByUser(user: TUser, options?: DeleteOptions): Promise<this>
 }
 
 export default function(
 	schema: DeletedSchema,
-	options: DeleteOptions,
+	schemaOptions: DeleteSchemaOptions,
 	deletedFieldOptions: DeletedFieldOptions
 ): void {
-	schema.methods.delete = function(...args: any[]) {
+	schema.methods.delete = function(options?: SaveOptions) {
 		this.set(deleteDocument(deletedFieldOptions));
-		return this.save(...mergeArguments(args, options));
+		return this.save(mergeOptions(options, schemaOptions));
 	};
-	schema.methods.deleteByUser = function<TUser>(user: TUser, ...args: any[]) {
+	schema.methods.deleteByUser = function<TUser>(user: TUser, options?: SaveOptions) {
 		this.set(deleteDocument(deletedFieldOptions, user));
-		return this.save(...mergeArguments(args, options));
+		return this.save(mergeOptions(options, schemaOptions));
 	};
-	schema.methods.restore = function(...args: any[]) {
+	schema.methods.restore = function(options?: SaveOptions) {
 		this.set(restoreDocument(deletedFieldOptions));
-		return this.save(...mergeArguments(args, options));
+		return this.save(mergeOptions(options, schemaOptions));
 	};
-}
-
-function mergeArguments(
-	args: any[],
-	options: DeleteOptions
-): unknown[] {
-	const saveOptions = typeof args[0] === 'object' ? args[0] : {};
-	const callback = typeof args[0] === 'function' ? args[0] : args[1];
-	if (typeof options.validateBeforeDelete !== 'undefined') {
-		Object.assign(saveOptions, { validateBeforeSave: Boolean(options.validateBeforeDelete) });
-	}
-	Object.assign(saveOptions, { timestamps: false });
-	return [saveOptions, callback];
 }

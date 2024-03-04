@@ -40,13 +40,13 @@ describe('deletedAt=true', function() {
 		expectOk(result);
 		expectDeletedCount(result, 1);
 
-		const puffy = await TestModel.findOne({ name: 'Puffy2' }).withDeleted().orFail();
+		const puffy = await TestModel.findOne({ name: 'Puffy2' }).allDocuments().orFail();
 
 		expect(puffy.deletedAt).to.be.an('date');
 	});
 
 	it('restore() -> unset deletedAt', async function() {
-		const puffy = await TestModel.findOne({ name: 'Puffy1' }).withDeleted().orFail();
+		const puffy = await TestModel.findOne({ name: 'Puffy1' }).allDocuments().orFail();
 
 		const success = await puffy.restore();
 
@@ -59,7 +59,7 @@ describe('deletedAt=true', function() {
 		expectOk(result);
 		expectMatchCount(result, 1);
 
-		const puffy = await TestModel.findOne({ name: 'Puffy2' }).withDeleted().orFail();
+		const puffy = await TestModel.findOne({ name: 'Puffy2' }).allDocuments().orFail();
 
 		expect(puffy.deletedAt).to.not.exist;
 	});
@@ -89,7 +89,7 @@ describe('deletedAt=deleted_at', function() {
 	});
 
 	it('restore() -> unset deletedAt', async function() {
-		const puffy = await TestModel.findOne({ name: 'Puffy1' }).withDeleted().orFail();
+		const puffy = await TestModel.findOne({ name: 'Puffy1' }).allDocuments().orFail();
 
 		const success = await puffy.restore();
 

@@ -53,13 +53,13 @@ describe('deletedBy=true', function() {
 		expectOk(result);
 		expectDeletedCount(result, 1);
 
-		const puffy = await TestModel.findOne({ name: 'Puffy2' }).withDeleted().orFail();
+		const puffy = await TestModel.findOne({ name: 'Puffy2' }).allDocuments().orFail();
 
 		expect(puffy.deletedBy).to.deep.equal(userId);
 	});
 
 	it('restore() -> unset deletedBy', async function() {
-		const puffy = await TestModel.findOne({ name: 'Puffy1' }).withDeleted().orFail();
+		const puffy = await TestModel.findOne({ name: 'Puffy1' }).allDocuments().orFail();
 
 		const success = await puffy.restore();
 
@@ -72,7 +72,7 @@ describe('deletedBy=true', function() {
 		expectOk(result);
 		expectMatchCount(result, 1);
 
-		const puffy = await TestModel.findOne({ name: 'Puffy2' }).withDeleted().orFail();
+		const puffy = await TestModel.findOne({ name: 'Puffy2' }).allDocuments().orFail();
 
 		expect(puffy.deletedBy).to.not.exist;
 	});
@@ -103,7 +103,7 @@ describe('deletedBy=deleted_by', function() {
 	});
 
 	it('restore() -> unset deletedAt', async function() {
-		const puffy = await TestModel.findOne({ name: 'Puffy1' }).withDeleted().orFail();
+		const puffy = await TestModel.findOne({ name: 'Puffy1' }).allDocuments().orFail();
 
 		const success = await puffy.restore();
 
@@ -143,7 +143,7 @@ describe('deletedBy custom schema', function() {
 	});
 
 	it('restore() -> unset deletedAt', async function() {
-		const puffy = await TestModel.findOne({ name: 'Puffy1' }).withDeleted().orFail();
+		const puffy = await TestModel.findOne({ name: 'Puffy1' }).allDocuments().orFail();
 
 		const success = await puffy.restore();
 
@@ -175,7 +175,7 @@ describe('deletedBy object without alias', function() {
 	});
 
 	it('restore() -> unset deletedAt', async function() {
-		const puffy = await TestModel.findOne({ name: 'Daffy1' }).withDeleted().orFail();
+		const puffy = await TestModel.findOne({ name: 'Daffy1' }).allDocuments().orFail();
 
 		const success = await puffy.restore();
 

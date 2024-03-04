@@ -11,4 +11,5 @@ jobs:
         with:
           release-type: node
           package-name: mongoose-delete-ts
-          bootstrap-sha: 9365e75c9929a1bb5fef4908acdfe99c07b0f4d0
+          bootstrap-sha: af645d71edc99887ae7ed866491152f7fb78a3b5
+          last-release-sha: af645d71edc99887ae7ed866491152f7fb78a3b5
