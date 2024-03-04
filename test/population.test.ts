@@ -63,10 +63,10 @@ describe('population', function() {
 		expect(document.child).to.not.be.null;
 	});
 
-	it('populate() -> return deleted sub-document withDeleted=true', async function() {
+	it('populate() -> return deleted sub-document', async function() {
 		const document = await ParentTestModel
 			.findOne({ name: 'Student 1' })
-			.populate({ path: 'child', options: { ignoreDeleted: true } })
+			.populate({ path: 'child', match: { deleted: { $in: [true, false] } } })
 			.orFail();
 
 		expect(document.child).to.not.be.null;

@@ -34,7 +34,7 @@ describe('with type key', function() {
 	});
 
 	it('restore() -> set deleted=false', async function() {
-		const puffy = await TestModel.findOne({ name: 'Puffy1' }).withDeleted().orFail();
+		const puffy = await TestModel.findOne({ name: 'Puffy1' }).allDocuments().orFail();
 		const success = await puffy.restore();
 		expect(success.deleted).to.equal(false);
 	});

@@ -1,15 +1,15 @@
 import { SchemaTypeOptions } from 'mongoose';
 
-export type Methods =  'count' | 'countDocuments' | 'find' | 'findOne' | 'findOneAndUpdate' | 'update' | 'updateOne' | 'updateMany' | 'aggregate';
+export type Methods =  'countDocuments' | 'find' | 'findOne' | 'findOneAndUpdate' | 'update' | 'updateOne' | 'updateMany' | 'aggregate';
 export type Properties = 'deleted' | 'deletedAt' | 'deletedBy';
 
-type DeletedSchemaOptions<T> = Omit<SchemaTypeOptions<T>, 'alias'> & {
+type DeletedSchemaTypeOptions<T> = Omit<SchemaTypeOptions<T>, 'alias'> & {
 	name?: string;
 }
 
-export type DeletedField<T> = boolean | string | DeletedSchemaOptions<T>
+export type DeletedField<T> = boolean | string | DeletedSchemaTypeOptions<T>
 
-export type DeleteOptions<TUser = any> = Partial<{
+export type DeleteSchemaOptions<TUser = any> = Partial<{
 	deleted: SchemaTypeOptions<boolean>,
 	deletedBy: DeletedField<TUser>;
 	deletedAt: DeletedField<Date>;

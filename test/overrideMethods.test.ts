@@ -39,8 +39,8 @@ describe('overrideMethods', function() {
 		expect(puffy).to.exist;
 	});
 
-	it('findOne().notDeleted() -> not return deleted document', async function() {
-		const puffy = await TestModel.findOne({ name: 'Obi-Wan Kenobi' }).notDeleted();
+	it('findOne() -> not return deleted document', async function() {
+		const puffy = await TestModel.findOne({ name: 'Obi-Wan Kenobi', deleted: false });
 		expect(puffy).to.not.exist;
 	});
 });

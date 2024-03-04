@@ -1,12 +1,12 @@
 import { expect } from 'chai';
-import { Deleted, DeletedMethods, DeletedQueryHelpers, DeletedStaticMethods } from '../source';
+import { Deleted, DeletedAt, DeletedMethods, DeletedQueryHelpers, DeletedStaticMethods } from '../source';
 import { Model } from 'mongoose';
 import { describe } from 'mocha';
 import setupModel from './utils/setupModel';
 import dropModel from './utils/dropModel';
 import { expectDeletedCount, expectModifiedCount, expectOk } from './utils/mongooseExpects';
 
-type Test = { name: string } & Deleted;
+type Test = { name: string } & Deleted & DeletedAt;
 type TestQueryHelpers = DeletedQueryHelpers<Test>;
 type TestModel = Model<Test, TestQueryHelpers, DeletedMethods> & DeletedStaticMethods<Test, TestQueryHelpers>;
 
@@ -48,7 +48,8 @@ describe('simple delete', function() {
 		const puffy = await TestModel.create({ name: 'Puffy3' });
 		await TestModel.findByIdAndDelete(puffy.id);
 
-		const result = await TestModel.findById(puffy.id).withDeleted().orFail();
+		const result = await TestModel.findById(puffy.id).allDocuments().orFail();
+
 		expect(result.deleted).to.equal(true);
 	});
 
@@ -56,12 +57,12 @@ describe('simple delete', function() {
 		await TestModel.create({ name: 'Puffy4' });
 		await TestModel.findOneAndDelete({ name: 'Puffy4' });
 
-		const result = await TestModel.findOne({ name: 'Puffy4' }).withDeleted().orFail();
+		const result = await TestModel.findOne({ name: 'Puffy4' }).allDocuments().orFail();
 		expect(result.deleted).to.equal(true);
 	});
 
 	it('restore() -> set deleted=false', async function() {
-		const puffy = await TestModel.findOne({ name: 'Puffy1' }).withDeleted().orFail();
+		const puffy = await TestModel.findOne({ name: 'Puffy1' }).allDocuments().orFail();
 		const success = await puffy.restore();
 		expect(success.deleted).to.equal(false);
 	});
@@ -119,13 +120,13 @@ describe('delete with timestamps', function() {
 
 		await TestModel.deleteOne({ name: 'Puffy2' });
 
-		const result = await TestModel.findOne({ name: 'Puffy2' }).withDeleted().orFail();
+		const result = await TestModel.findOne({ name: 'Puffy2' }).allDocuments().orFail();
 		expect(result.deleted).to.equal(true);
 		expect(result.updatedAt).to.deep.equal(updatedAt);
 	});
 
 	it('restore() -> will not change updatedAt', async function() {
-		const puffy = await TestModel.findOne({ name: 'Puffy1' }).withDeleted().orFail();
+		const puffy = await TestModel.findOne({ name: 'Puffy1' }).allDocuments().orFail();
 		const updatedAt = new Date(puffy.updatedAt);
 
 		const success = await puffy.restore();
@@ -134,7 +135,7 @@ describe('delete with timestamps', function() {
 	});
 
 	it('restoreOne() -> will not change updatedAt', async function() {
-		const before = await TestModel.findOne({ name: 'Puffy2' }).withDeleted().orFail();
+		const before = await TestModel.findOne({ name: 'Puffy2' }).allDocuments().orFail();
 		const updatedAt = new Date(before.updatedAt);
 
 		await TestModel.restoreOne({ name: 'Puffy2' });
@@ -178,18 +179,21 @@ describe('delete with validateBeforeDelete', function() {
 	});
 });
 
+type Destroyed = { name: string } & Deleted & { destroyed: boolean };
+type DestroyedTestModel = Model<Destroyed, TestQueryHelpers, DeletedMethods> & DeletedStaticMethods<Destroyed, TestQueryHelpers>;
+
 describe('deleted schema options', function() {
-	let TestModel: TestModel;
+	let DestroyedTestModel: DestroyedTestModel;
 
 	before(async function() {
-		TestModel = setupModel<Test, TestModel>('TestSchemaOptions', { name: String }, { deleted: { alias: 'destroyed' } });
+		DestroyedTestModel = setupModel<Destroyed, DestroyedTestModel>('TestSchemaOptions', { name: String }, { deleted: { alias: 'destroyed' } });
 	});
 	after(async function() {
 		await dropModel('TestSchemaOptions');
 	});
 
 	it('use custom schema alias', async function() {
-		const puffy = await TestModel.create({ name: 'Puffy1' });
+		const puffy = await DestroyedTestModel.create({ name: 'Puffy1' });
 		const result = await puffy.delete();
 
 		expect(result.destroyed).to.equal(true);

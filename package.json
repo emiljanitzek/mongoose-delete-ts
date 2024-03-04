@@ -6,7 +6,7 @@
   "main": "dist/source/index.js",
   "types": "dist/source/index.d.ts",
   "scripts": {
-    "test": "npx ts-mocha --project tsconfig.json --transpile-only --recursive --reporter spec --require test/utils/hooks.ts ./test/*.ts",
+    "test": "npx ts-mocha --project test/tsconfig.json --transpile-only --recursive --reporter spec --require test/utils/hooks.ts --require chai/register-expect.js ./test/*.ts",
     "test:dist": "npx mocha --recursive --reporter spec --require dist/test/utils/hooks.js ./dist/test/*",
     "clean": "rm -r dist",
     "build": "npx tsc -b source",
@@ -32,20 +32,21 @@
   },
   "homepage": "https://github.com/emiljanitzek/mongoose-delete-ts",
   "peerDependencies": {
-    "mongoose": "6.x"
+    "mongoose": "8.x"
   },
   "devDependencies": {
-    "@tsconfig/node18": "~1.0.1",
-    "@types/chai": "~4.3.1",
-    "@types/mocha": "~9.1.1",
-    "@typescript-eslint/eslint-plugin": "~5.30.6",
-    "@typescript-eslint/parser": "~5.30.6",
-    "chai": "~4.3.6",
-    "eslint": "~8.19.0",
-    "mocha": "~10.0.0",
-    "mongoose": "~6.5.2",
+    "@tsconfig/node20": "~20.1.2",
+    "@types/chai": "~4.3.12",
+    "@types/mocha": "~10.0.6",
+    "@types/node": "~20.11.24",
+    "@typescript-eslint/eslint-plugin": "~7.1.0",
+    "@typescript-eslint/parser": "~7.1.0",
+    "chai": "~4.3.10",
+    "eslint": "~8.57.0",
+    "mocha": "~10.3.0",
+    "mongodb": "~6.3.0",
+    "mongoose": "~8.2.1",
     "ts-mocha": "~10.0.0",
-    "typescript": "~4.7.4"
-  },
-  "dependencies": {}
+    "typescript": "~5.3.3"
+  }
 }
