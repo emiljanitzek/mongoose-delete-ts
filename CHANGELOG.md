@@ -1,3 +1,15 @@
+## [v2.0.0]
+> Mars 6, 2024
+
+Version compatible with mongoose 8, updated types and removed callback support.
+
+### BREAKING CHANGES
+- Only support for Mongoose 8 (see breaking changes for Mongoose 7/8)
+- Dropping support for Node 14, 16
+- Dropping support for MongoDB 4
+- Renaming query helper functions withDeleted() -> allDocuments(), onlyDeleted -> deletedDocuments()
+- Removing support for query option { withDeleted: true } (use deleted: { $in: [true, false] } in query instead)
+
 ## [v1.3.1]
 > December 28, 2022
 
