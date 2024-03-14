@@ -1,6 +1,23 @@
 # Changelog
 
 
+## [2.0.0](https://github.com/emiljanitzek/mongoose-delete-ts/compare/v1.1.1...v2.0.0) (2024-03-14)
+
+
+### ⚠ BREAKING CHANGES
+
+* dropping support for Node 14, 16
+* dropping support for MongoDB 4
+* upgrade to mongoose 8
+
+### Features
+
+* dropping support for MongoDB 4 ([09883d3](https://github.com/emiljanitzek/mongoose-delete-ts/commit/09883d38da5e9314ea3c0f5a3ae4012c8c046907))
+* dropping support for Node 14, 16 ([09883d3](https://github.com/emiljanitzek/mongoose-delete-ts/commit/09883d38da5e9314ea3c0f5a3ae4012c8c046907))
+* removing support for query option `{ withDeleted: true }` (use `deleted: { $in: [true, false] }` in query instead) ([09883d3](https://github.com/emiljanitzek/mongoose-delete-ts/commit/09883d38da5e9314ea3c0f5a3ae4012c8c046907))
+* renaming query helper functions `withDeleted()` -&gt; `allDocuments()`, `onlyDeleted()` -> `deletedDocuments()` ([09883d3](https://github.com/emiljanitzek/mongoose-delete-ts/commit/09883d38da5e9314ea3c0f5a3ae4012c8c046907))
+* upgrade to mongoose 8 ([09883d3](https://github.com/emiljanitzek/mongoose-delete-ts/commit/09883d38da5e9314ea3c0f5a3ae4012c8c046907))
+
 ## [v1.3.1]
 > December 28, 2022
 
