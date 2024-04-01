@@ -16,7 +16,7 @@ export default function(schema: DeletedSchema, methods?: Methods[] | boolean): v
 			this: Query<unknown, T>
 		) {
 			if (deletedIsNotAlreadyInQuery(this)) {
-				this.where({ deleted: { $ne: true, $exists: false } });
+				this.where({ deleted: { $ne: true } });
 			}
 		});
 	}
@@ -26,7 +26,7 @@ export default function(schema: DeletedSchema, methods?: Methods[] | boolean): v
 			this: Aggregate<unknown>
 		) {
 			if (deletedIsNotAlreadyInAggregation(this)) {
-				this.pipeline().unshift({ $match: { deleted: { $ne: true, $exists: false } } });
+				this.pipeline().unshift({ $match: { deleted: { $ne: true } } });
 			}
 		});
 	}
