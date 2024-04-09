@@ -44,8 +44,8 @@
     "chai": "~4.3.10",
     "eslint": "~8.57.0",
     "mocha": "~10.3.0",
-    "mongodb": "~6.3.0",
-    "mongoose": "~8.2.1",
+    "mongodb": "~6.5.0",
+    "mongoose": "~8.3.1",
     "ts-mocha": "~10.0.0",
     "typescript": "~5.3.3"
   }
