@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [2.1.0](https://github.com/emiljanitzek/mongoose-delete-ts/compare/v2.0.0...v2.1.0) (2024-04-10)
+
+
+### Features
+
+* update mongoose/mongodb dependencies ([408cf68](https://github.com/emiljanitzek/mongoose-delete-ts/commit/408cf684506e135f16abf1d5eb5da127a76983b5))
+
 ## [2.0.0](https://github.com/emiljanitzek/mongoose-delete-ts/compare/v1.1.1...v2.0.0) (2024-03-14)
 
 
