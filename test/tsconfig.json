@@ -5,7 +5,7 @@
 		"composite": false,
 		"outDir": "../dist/test",
 		"baseUrl": "./",
-		"types": ["mocha"]
+		"types": ["node", "mocha"]
 	},
 
 	"include": ["**/*"],
