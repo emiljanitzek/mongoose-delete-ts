@@ -6,8 +6,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [18, 20]
-        mongodb-version: ['5.0', '6.0', '7.0']
+        node: [20, 22]
+        mongodb-version: ['6.0', '7.0', '8.0']
     name: Node ${{ matrix.node }} MongoDB ${{ matrix.mongodb-version }}
     steps:
     - name: Git checkout
@@ -33,10 +33,10 @@ jobs:
       - name: Git checkout
         uses: actions/checkout@v4
 
-      - name: Use Node.js 20
+      - name: Use Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - run: npm install
 
