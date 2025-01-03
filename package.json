@@ -1,6 +1,6 @@
 {
   "name": "mongoose-delete-ts",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Mongoose soft delete plugin",
   "author": "Emil Janitzek <emil@pixel2.se>",
   "main": "dist/source/index.js",

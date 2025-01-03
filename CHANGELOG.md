@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [2.2.0](https://github.com/emiljanitzek/mongoose-delete-ts/compare/v2.1.0...v2.2.0) (2025-01-03)
+
+
+### Features
+
+* upgrade to latest mongoose ([17ceae6](https://github.com/emiljanitzek/mongoose-delete-ts/commit/17ceae68307da60104b7673e23ffb987227aa627))
+
 ## [2.1.0](https://github.com/emiljanitzek/mongoose-delete-ts/compare/v2.0.0...v2.1.0) (2024-04-10)
 
 
