@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [2.2.1](https://github.com/emiljanitzek/mongoose-delete-ts/compare/v2.2.0...v2.2.1) (2025-01-03)
+
+
+### Bug Fixes
+
+* github action to publish to npm ([cc98304](https://github.com/emiljanitzek/mongoose-delete-ts/commit/cc9830440a243c3bfa4028c2968c4735c9541164))
+
 ## [2.2.0](https://github.com/emiljanitzek/mongoose-delete-ts/compare/v2.1.0...v2.2.0) (2025-01-03)
 
 
