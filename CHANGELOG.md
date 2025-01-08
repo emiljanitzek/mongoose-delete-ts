@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [2.2.2](https://github.com/emiljanitzek/mongoose-delete-ts/compare/v2.2.1...v2.2.2) (2025-01-08)
+
+
+### Bug Fixes
+
+* update query helper to match any query operation ([a939e4b](https://github.com/emiljanitzek/mongoose-delete-ts/commit/a939e4b211ce2ebd517db2bcc14f1e786956218c))
+
 ## [2.2.1](https://github.com/emiljanitzek/mongoose-delete-ts/compare/v2.2.0...v2.2.1) (2025-01-03)
 
 
