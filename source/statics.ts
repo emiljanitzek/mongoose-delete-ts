@@ -1,7 +1,7 @@
 import {
 	FilterQuery,
 	Model,
-	MongooseQueryOptions,
+	MongooseBaseQueryOptions,
 	QueryOptions,
 	QueryWithHelpers,
 	UpdateWriteOpResult
@@ -18,8 +18,8 @@ import {
 import { DeleteSchemaOptions } from './types/DeleteSchemaOptions';
 import mergeOptions from './utils/mergeOptions';
 
-type DeleteOptions<RawDocType> = MongoDbDeleteOptions & Omit<MongooseQueryOptions<RawDocType>, 'lean' | 'timestamps'>;
-type UpdateOptions<RawDocType> = MongoDbUpdateOptions & Omit<MongooseQueryOptions<RawDocType>, 'lean'>;
+type DeleteOptions<RawDocType> = MongoDbDeleteOptions & Omit<MongooseBaseQueryOptions<RawDocType>, 'lean' | 'timestamps'>;
+type UpdateOptions<RawDocType> = MongoDbUpdateOptions & Omit<MongooseBaseQueryOptions<RawDocType>, 'lean'>;
 
 export interface DeletedStaticMethods<DocType, THelpers = {}, RawDocType = DocType> {
 	restoreOne(
@@ -54,23 +54,25 @@ export default function(
 ): void {
 	schema.statics.deleteOne = async function<T>(this: Model<any>, filter?: FilterQuery<T>, options?: DeleteOptions<T> | null) {
 		const update = staticDelete(deletedFieldOptions);
-		const result = await this.updateOne.call(this, filter, update, mergeOptions(options, schemaOptions));
+		const updateOneFn = this.updateOne.bind(this);
+		const result = await updateOneFn(filter ?? {}, update, mergeOptions(options, schemaOptions));
 		return convertToDeleteResult(result);
 	};
 	schema.statics.deleteMany = async function<T>(this: Model<any>, filter?: FilterQuery<T>, options?: DeleteOptions<T> | null) {
 		const update = staticDelete(deletedFieldOptions);
-		const result = await this.updateMany.call(this, filter, update, mergeOptions(options, schemaOptions));
+		const result = await this.updateMany.call(this, filter ?? {}, update, mergeOptions(options, schemaOptions));
 		return convertToDeleteResult(result);
 	};
 
 	schema.statics.deleteOneByUser = async function<TUser, T>(this: Model<any>, user: TUser, filter?: FilterQuery<T>, options?: DeleteOptions<T> | null) {
 		const update = staticDelete(deletedFieldOptions, user);
-		const result = await this.updateOne.call(this, filter, update, mergeOptions(options, schemaOptions));
+		const updateOneFn = this.updateOne.bind(this);
+		const result = await updateOneFn(filter ?? {}, update, mergeOptions(options, schemaOptions));
 		return convertToDeleteResult(result);
 	};
 	schema.statics.deleteManyByUser = async function<TUser, T>(this: Model<any>, user: TUser, filter?: FilterQuery<T>, options?: DeleteOptions<T> | null) {
 		const update = staticDelete(deletedFieldOptions, user);
-		const result = await this.updateMany.call(this, filter, update, mergeOptions(options, schemaOptions));
+		const result = await this.updateMany.call(this, filter ?? {}, update, mergeOptions(options, schemaOptions));
 		return convertToDeleteResult(result);
 	};
 
@@ -85,7 +87,8 @@ export default function(
 
 	schema.statics.restoreOne = function<T>(this: Model<any>, filter?: FilterQuery<T>, options?: UpdateOptions<T> | null) {
 		const update = staticRestore(deletedFieldOptions);
-		return this.updateOne.call(this, { ...filter, deleted: true }, update, mergeOptions(options, schemaOptions));
+		const updateOneFn = this.updateOne.bind(this);
+		return updateOneFn( { ...filter, deleted: true }, update, mergeOptions(options, schemaOptions));
 	};
 	schema.statics.restoreMany = function<T>(this: Model<any>, filter?: FilterQuery<T>, options?: UpdateOptions<T> | null) {
 		const update = staticRestore(deletedFieldOptions);
