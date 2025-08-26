@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [2.2.3](https://github.com/emiljanitzek/mongoose-delete-ts/compare/v2.2.2...v2.2.3) (2025-08-26)
+
+
+### Bug Fixes
+
+* bump patch and minor package updates ([be8dcae](https://github.com/emiljanitzek/mongoose-delete-ts/commit/be8dcae6e174554a310ec80ccd44e8d8ae6083db))
+
 ## [2.2.2](https://github.com/emiljanitzek/mongoose-delete-ts/compare/v2.2.1...v2.2.2) (2025-01-08)
 
 
