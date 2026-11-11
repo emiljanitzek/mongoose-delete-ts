@@ -5,9 +5,9 @@ export type Properties = 'deleted' | 'deletedAt' | 'deletedBy';
 
 type DeletedSchemaTypeOptions<T> = Omit<SchemaTypeOptions<T>, 'alias'> & {
 	name?: string;
-}
+};
 
-export type DeletedField<T> = boolean | string | DeletedSchemaTypeOptions<T>
+export type DeletedField<T> = boolean | string | DeletedSchemaTypeOptions<T>;
 
 export type DeleteSchemaOptions<TUser = any> = Partial<{
 	deleted: SchemaTypeOptions<boolean>,
@@ -16,4 +16,4 @@ export type DeleteSchemaOptions<TUser = any> = Partial<{
 	overrideMethods: Methods[] | boolean;
 	indexFields: Properties[] | boolean;
 	validateBeforeDelete: boolean;
-}>
+}>;

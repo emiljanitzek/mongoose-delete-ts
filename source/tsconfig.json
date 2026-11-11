@@ -4,8 +4,7 @@
 	"compilerOptions": {
 		"composite": true,
 		"declaration": true,
-		"outDir": "../dist/source",
-		"baseUrl": "./"
+		"outDir": "../dist/source"
 	},
 
 	"include": ["**/*"]

@@ -6,13 +6,14 @@
   "main": "dist/source/index.js",
   "types": "dist/source/index.d.ts",
   "scripts": {
-    "test": "npx ts-mocha --project test/tsconfig.json --transpile-only --recursive --reporter spec --require test/utils/hooks.ts --require chai/register-expect.js ./test/*.ts",
-    "test:dist": "npx mocha --recursive --reporter spec --require dist/test/utils/hooks.js ./dist/test/*",
+    "test": "mocha --import=tsx --require test/utils/hooks.ts --require chai/register-expect.js --reporter spec './test/*.test.ts'",
+    "test:dist": "mocha --reporter spec --require dist/test/utils/hooks.js './dist/test/*.test.js'",
     "clean": "rm -r dist",
-    "build": "npx tsc -b source",
-    "build:test": "npx tsc -b test",
+    "build": "tsc -b source",
+    "build:test": "tsc -b test",
     "prepare": "npm run build",
-    "eslint": "npx eslint source/** test/** --ext .ts"
+    "eslint": "eslint source test",
+    "typecheck": "tsc -b source && tsc -p test --noEmit"
   },
   "repository": {
     "type": "git",
@@ -35,18 +36,19 @@
     "mongoose": "8.x"
   },
   "devDependencies": {
-    "@tsconfig/node22": "^22.0.2",
-    "@types/chai": "~4.3.16",
-    "@types/mocha": "~10.0.10",
-    "@types/node": "~22.10.2",
-    "@typescript-eslint/eslint-plugin": "~7.18.0",
-    "@typescript-eslint/parser": "~7.18.0",
-    "chai": "~4.5.0",
-    "eslint": "~8.57.1",
-    "mocha": "~10.8.2",
-    "mongodb": "^6.18.0",
-    "mongoose": "^8.18.0",
-    "ts-mocha": "~10.0.0",
-    "typescript": "^5.9.2"
+    "@eslint/js": "^10.0.1",
+    "@stylistic/eslint-plugin": "^5.10.0",
+    "@tsconfig/node22": "^22.0.6",
+    "@types/chai": "^5.2.3",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.20.5",
+    "chai": "^6.3.0",
+    "eslint": "^10.14.0",
+    "mocha": "^12.0.3",
+    "mongodb": "~6.20.0",
+    "mongoose": "^8.24.8",
+    "tsx": "^4.23.15",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.72.2"
   }
 }

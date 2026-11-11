@@ -6,39 +6,53 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [20, 22]
+        node: [20, 22, 24]
         mongodb-version: ['6.0', '7.0', '8.0']
     name: Node ${{ matrix.node }} MongoDB ${{ matrix.mongodb-version }}
     steps:
     - name: Git checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
 
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
+    - name: Use Node.js ${{ matrix.node }}
+      uses: actions/setup-node@v7
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: ${{ matrix.node }}
 
     - name: Start MongoDB
-      uses: supercharge/mongodb-github-action@1.10.0
+      uses: supercharge/mongodb-github-action@1.12.1
       with:
         mongodb-version: ${{ matrix.mongodb-version }}
 
-    - run: npm install
+    - run: npm ci
 
     - run: npm test
+  typecheck:
+    runs-on: ubuntu-latest
+    name: Typecheck
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v7
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - run: npm ci
+
+      - run: npm run typecheck
   eslint:
     runs-on: ubuntu-latest
     name: Evaluate eslint
     steps:
       - name: Git checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
-      - name: Use Node.js 22
-        uses: actions/setup-node@v4
+      - name: Use Node.js 24
+        uses: actions/setup-node@v7
         with:
-          node-version: 22
+          node-version: 24
 
-      - run: npm install
+      - run: npm ci
 
       - run: npm run eslint
-
