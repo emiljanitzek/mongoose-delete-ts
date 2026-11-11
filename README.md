@@ -195,6 +195,7 @@ By default, all standard methods will exclude deleted documents from results, do
 | find()                     | find().deletedDocuments()             | find().allDocuments()             |
 | findById()                 | findById().deletedDocuments()         | findById().allDocuments()         |
 | findOne()                  | findOne().deletedDocuments()          | findOne().allDocuments()          |
+| exists()                   | exists().deletedDocuments()           | exists().allDocuments()           |
 | findOneAndUpdate()         | findOneAndUpdate().deletedDocuments() | findOneAndUpdate().allDocuments() |
 | findByIdAndUpdate()        | findByIdAndUpdate().deletedDocuments()| findByIdAndUpdate().allDocuments()|
 | updateOne()                | updateOne({ deleted: true })     | updateOne({ deleted: { $in: [true, false] } })        |
@@ -210,6 +211,8 @@ petSchema.plugin(mongooseDelete, { overrideMethods: true });
 // Overide only specific methods
 petSchema.plugin(mongooseDelete, { overrideMethods: ['countDocuments', 'find', 'findOne'] });
 ```
+
+`exists()` is executed by Mongoose as a `findOne()` query, so it is filtered whenever `findOne` is overridden.
 
 ### Example of query helpers
 

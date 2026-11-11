@@ -43,4 +43,39 @@ describe('overrideMethods', function() {
 		const puffy = await TestModel.findOne({ name: 'Obi-Wan Kenobi', deleted: false });
 		expect(puffy).to.not.exist;
 	});
+
+	it('exists() -> return deleted document when findOne is not overridden', async function() {
+		const result = await TestModel.exists({ name: 'Obi-Wan Kenobi' });
+		expect(result).to.exist;
+	});
+});
+
+describe('overrideMethods with findOne', function() {
+	let TestModel: TestModel;
+
+	before(async function() {
+		TestModel = setupModel<Test, TestModel>('TestOverrideMethodsFindOne', { name: String }, { overrideMethods: ['findOne'] });
+	});
+
+	beforeEach(async function() {
+		await TestModel.create(
+			[
+				{ name: 'Obi-Wan Kenobi', deleted: true },
+				{ name: 'Darth Vader' }
+			]);
+	});
+
+	afterEach(async function() {
+		await dropModel('TestOverrideMethodsFindOne');
+	});
+
+	it('exists() -> not return deleted document', async function() {
+		const result = await TestModel.exists({ name: 'Obi-Wan Kenobi' });
+		expect(result).to.not.exist;
+	});
+
+	it('exists() -> return non-deleted document', async function() {
+		const result = await TestModel.exists({ name: 'Darth Vader' });
+		expect(result).to.exist;
+	});
 });
