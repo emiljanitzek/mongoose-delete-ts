@@ -11,7 +11,7 @@ export default function setupModel<T extends Deleted, TModel>(
 	modelName: string,
 	fields: SchemaDefinition<SchemaDefinitionType<T>>,
 	deletedOptions: DeleteOptions = {},
-	schemaOptions: SchemaOptions<string, any, any, any> = {}
+	schemaOptions: Omit<SchemaOptions, 'methods' | 'statics' | 'query' | 'virtuals' | 'toJSON' | 'toObject'> = {}
 ): TModel {
 	const testSchema = new Schema<T, any, DeletedMethods, DeletedQueryHelpers<T>, any, DeletedStaticMethods<T>, any, any>(fields, {
 		collection: testCollectionName(modelName),

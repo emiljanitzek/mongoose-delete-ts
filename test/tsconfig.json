@@ -4,7 +4,6 @@
 	"compilerOptions": {
 		"composite": false,
 		"outDir": "../dist/test",
-		"baseUrl": "./",
 		"types": ["node", "mocha"]
 	},
 

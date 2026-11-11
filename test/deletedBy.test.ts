@@ -112,7 +112,7 @@ describe('deletedBy=deleted_by', function() {
 	});
 });
 
-type User = { id: string }
+type User = { id: string };
 type TestDeletedByString = { name: string } & Deleted & DeletedBy<User>;
 type TestDeletedByStringQueryHelpers = DeletedQueryHelpers<TestDeletedByString>;
 type TestDeletedByStringModel = Model<TestDeletedByString, TestDeletedByStringQueryHelpers, DeletedMethods & DeletedByMethods<string>> &
