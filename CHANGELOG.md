@@ -1,6 +1,20 @@
 # Changelog
 
 
+## [2.3.0](https://github.com/emiljanitzek/mongoose-delete-ts/compare/v2.2.3...v2.3.0) (2026-11-12)
+
+
+### Features
+
+* export the plugin as mongooseDelete ([5eeac71](https://github.com/emiljanitzek/mongoose-delete-ts/commit/5eeac715977ccb70d328b31bb6026a8876c99ff5))
+* upgrade to latest mongoose 8 and dev dependencies ([ea53390](https://github.com/emiljanitzek/mongoose-delete-ts/commit/ea533902df572e6ccc67e302ca0fdab2d537d067))
+
+
+### Bug Fixes
+
+* accept explicitly typed schemas in schema.plugin() ([8d3f1ae](https://github.com/emiljanitzek/mongoose-delete-ts/commit/8d3f1ae3706110a7f6a8390a007f8e264e9bd2e8))
+* return queries from the delete statics ([525ccbe](https://github.com/emiljanitzek/mongoose-delete-ts/commit/525ccbef7a3679951c64a34e2644161d763b66c8))
+
 ## [2.2.3](https://github.com/emiljanitzek/mongoose-delete-ts/compare/v2.2.2...v2.2.3) (2025-08-26)
 
 
