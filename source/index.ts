@@ -10,4 +10,5 @@ export { DeletedMethods, DeletedByMethods } from './methods';
 export { DeletedStaticMethods, DeletedByStaticMethods } from './statics';
 export { default as DeletedQuery, DeletedQueryHelpers }  from './types/DeletedQuery';
 
+export { deletedPlugin as mongooseDelete };
 export default deletedPlugin;

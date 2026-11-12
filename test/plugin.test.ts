@@ -9,7 +9,8 @@ import mongooseDelete, {
 	DeletedByStaticMethods,
 	DeletedMethods,
 	DeletedQueryHelpers,
-	DeletedStaticMethods
+	DeletedStaticMethods,
+	mongooseDelete as namedExport
 } from '../source';
 import dropModel from './utils/dropModel';
 import { testCollectionName } from './utils/setupModel';
@@ -19,6 +20,12 @@ type PetQueryHelpers = DeletedQueryHelpers<Pet>;
 type PetMethods = DeletedMethods & DeletedByMethods<Types.ObjectId>;
 type PetStaticMethods = DeletedStaticMethods<Pet, PetQueryHelpers> & DeletedByStaticMethods<Pet, Types.ObjectId, PetQueryHelpers>;
 type PetModel = Model<Pet, PetQueryHelpers, PetMethods> & PetStaticMethods;
+
+describe('plugin exports', function() {
+	it('exports the plugin as default and as mongooseDelete', function() {
+		expect(namedExport).to.equal(mongooseDelete);
+	});
+});
 
 describe('schema.plugin() with a typed schema', function() {
 	const petSchema = new Schema<Pet, PetModel, PetMethods, PetQueryHelpers, {}, PetStaticMethods>({
