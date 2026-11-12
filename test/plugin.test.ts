@@ -14,6 +14,7 @@ import mongooseDelete, {
 } from '../source';
 import dropModel from './utils/dropModel';
 import { testCollectionName } from './utils/setupModel';
+import { assertType, Equals } from './utils/types';
 
 type Pet = { name: string } & Deleted & DeletedAt & DeletedBy<Types.ObjectId>;
 type PetQueryHelpers = DeletedQueryHelpers<Pet>;
@@ -43,6 +44,7 @@ describe('schema.plugin() with a typed schema', function() {
 		const userId = new Types.ObjectId();
 
 		const deleted = await pet.deleteByUser(userId);
+		assertType<Equals<typeof deleted, typeof pet>>();
 		expect(deleted.deletedBy).to.deep.equal(userId);
 		expect(deleted.deletedAt).to.be.instanceOf(Date);
 

@@ -1,6 +1,7 @@
 import { SchemaTypeOptions } from 'mongoose';
 
-export type Methods =  'countDocuments' | 'find' | 'findOne' | 'findOneAndUpdate' | 'update' | 'updateOne' | 'updateMany' | 'aggregate';
+export type QueryMethods = 'countDocuments' | 'find' | 'findOne' | 'findOneAndUpdate' | 'updateOne' | 'updateMany';
+export type Methods = QueryMethods | 'aggregate';
 export type Properties = 'deleted' | 'deletedAt' | 'deletedBy';
 
 type DeletedSchemaTypeOptions<T> = Omit<SchemaTypeOptions<T>, 'alias'> & {

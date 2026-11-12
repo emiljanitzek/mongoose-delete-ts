@@ -6,14 +6,15 @@ import restoreDocument from './utils/restoreDocument';
 import { DeleteSchemaOptions } from './types/DeleteSchemaOptions';
 import mergeOptions from './utils/mergeOptions';
 
-type DeleteOptions = Omit<SaveOptions, 'timestamps'>;
+export type DeleteDocumentOptions = Omit<SaveOptions, 'timestamps'>;
+
 export interface DeletedMethods {
-	delete(options?: DeleteOptions): Promise<this>
-	restore(options?: DeleteOptions): Promise<this>
+	delete<TDocument>(this: TDocument, options?: DeleteDocumentOptions): Promise<TDocument>;
+	restore<TDocument>(this: TDocument, options?: DeleteDocumentOptions): Promise<TDocument>;
 }
 
 export interface DeletedByMethods<TUser = any> {
-	deleteByUser(user: TUser, options?: DeleteOptions): Promise<this>
+	deleteByUser<TDocument>(this: TDocument, user: TUser, options?: DeleteDocumentOptions): Promise<TDocument>;
 }
 
 export default function(
@@ -21,15 +22,15 @@ export default function(
 	schemaOptions: DeleteSchemaOptions,
 	deletedFieldOptions: DeletedFieldOptions
 ): void {
-	schema.methods.delete = function(options?: SaveOptions) {
+	schema.methods.delete = function(options?: DeleteDocumentOptions) {
 		this.set(deleteDocument(deletedFieldOptions));
 		return this.save(mergeOptions(options, schemaOptions));
 	};
-	schema.methods.deleteByUser = function<TUser>(user: TUser, options?: SaveOptions) {
+	schema.methods.deleteByUser = function(user: unknown, options?: DeleteDocumentOptions) {
 		this.set(deleteDocument(deletedFieldOptions, user));
 		return this.save(mergeOptions(options, schemaOptions));
 	};
-	schema.methods.restore = function(options?: SaveOptions) {
+	schema.methods.restore = function(options?: DeleteDocumentOptions) {
 		this.set(restoreDocument(deletedFieldOptions));
 		return this.save(mergeOptions(options, schemaOptions));
 	};

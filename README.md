@@ -3,7 +3,14 @@ Mongoose Delete TS Plugin
 
 mongoose-delete-ts is simple and lightweight plugin that enables soft deletion of documents in MongoDB. This code is based on plugin [mongoose-delete](https://github.com/dsanel/mongoose-delete). But completely re-written in TypeScript and using mongoose query helpers. 
 
-[![Build Status](https://github.com/emiljanitzek/mongoose-delete-ts/actions/workflows/test.yml/badge.svg)](https://github.com/emiljanitzek/mongoose-delete/actions/workflows/test.yml)
+[![Build Status](https://github.com/emiljanitzek/mongoose-delete-ts/actions/workflows/test.yml/badge.svg)](https://github.com/emiljanitzek/mongoose-delete-ts/actions/workflows/test.yml)
+
+## Requirements
+
+| mongoose-delete-ts | Mongoose | Node.js     |
+| ---                | ---      | ---         |
+| 3.x                | 9.x      | >= 22.0.0   |
+| 2.x                | 8.x      | >= 16.20.1  |
 
 ## Installation
 Install using [npm](https://npmjs.org)
@@ -12,79 +19,69 @@ npm install mongoose-delete-ts
 ```
 
 ## Before you get started
-This plugin uses `$equal: true` for improved query performance. If you are adding this plugin to an existing project, make sure to manually update all existing documents with `deleted=false`
+This plugin queries `deleted: false` for improved query performance. If you are adding this plugin to an existing project, make sure to manually update all existing documents with `deleted=false`
 
 ## Usage
 
-We can use this plugin with or without options.
-
 ### Simple usage
 
+Wrap your schema with `softDelete()`. It applies the plugin and returns the same schema, typed with everything the plugin adds, so `mongoose.model()` infers the fields, methods, query helpers and statics for you.
+
 ```typescript
-import mongoose, { Model, Schema } from 'mongoose';
-import mongooseDelete, { Deleted, DeletedQueryHelpers, DeletedMethods, DeletedStaticMethods } from 'mongoose-delete-ts';
+import mongoose, { Schema } from 'mongoose';
+import { softDelete } from 'mongoose-delete-ts';
 
-type Pet = { name: string } & Deleted;
-type PetQueryHelpers = DeletedQueryHelpers<Pet>;
-type PetStaticMethods = DeletedStaticMethods<Pet, PetQueryHelpers>;
-type PetModel = Model<Pet, PetQueryHelpers, DeletedMethods> & PetStaticMethods;
+const petSchema = softDelete(new Schema({
+	name: { type: String, required: true }
+}));
 
-const petSchema = new Schema<Pet, PetModel, DeletedMethods, PetQueryHelpers, {}, PetStaticMethods>({
-	name: String
-});
+const PetModel = mongoose.model('Pet', petSchema);
 
-petSchema.plugin(mongooseDelete);
-
-const PetModel = mongoose.model<Pet, PetModel>('Pet', petSchema);
-
-const fluffy = new PetModel({ name: 'Fluffy' });
-
-await fluffy.save();
+const fluffy = await PetModel.create({ name: 'Fluffy' });
 // mongodb: { name: 'Fluffy', deleted: false }
 await fluffy.delete();
 // mongodb: { name: 'Fluffy', deleted: true }
 await fluffy.restore();
 // mongodb: { name: 'Fluffy', deleted: false }
 
-const examplePetId = new mongoose.Types.ObjectId('53da93b16b4a6670076b16bf');
-
-await PetModel.findByIdAndDelete(examplePetId);
-// mongodb: { _id: '53da93b1...', name: 'Fluffy', deleted: true }
+await PetModel.deleteOne({ name: 'Fluffy' });
+// mongodb: { name: 'Fluffy', deleted: true }
 ```
 
-### ES modules
-
-The package is published as CommonJS. In an ES module project (`"type": "module"` in `package.json`), import the plugin by name:
+`softDelete(schema, options)` takes the same options as `schema.plugin(mongooseDelete, options)`, and the types follow the options:
 
 ```typescript
-import { mongooseDelete } from 'mongoose-delete-ts';
+const petSchema = softDelete(new Schema({ name: String }), {
+	deletedAt: true,
+	deletedBy: { type: String }
+});
+const PetModel = mongoose.model('Pet', petSchema);
 
-petSchema.plugin(mongooseDelete);
+const fluffy = await PetModel.findOne({ name: 'Fluffy' }).orFail();
+await fluffy.deleteByUser('John Doe');
+fluffy.deletedAt; // Date | undefined
+fluffy.deletedBy; // string | undefined (inferred from the deletedBy type, defaults to ObjectId)
+
+await PetModel.deleteManyByUser('John Doe', { name: 'Fluffy' });
+await PetModel.restoreMany({ name: 'Fluffy' });
 ```
 
+Schemas with an explicit document type, instance methods, query helpers or statics keep them:
+
+```typescript
+type Pet = { name: string };
+type PetMethods = { greet(): string };
+
+const petSchema = softDelete(new Schema<Pet, Model<Pet>, PetMethods>({ name: String }), { deletedAt: true });
+```
 
 ### Deleted at timestamp
 
 ```typescript
-import mongoose, { Model, Schema } from 'mongoose';
-import mongooseDelete, { Deleted, DeletedAt, DeletedQueryHelpers, DeletedMethods, DeletedStaticMethods } from 'mongoose-delete-ts';
+const petSchema = softDelete(new Schema({ name: String }), { deletedAt: true });
+const PetModel = mongoose.model('Pet', petSchema);
 
-type Pet = { name: string } & Deleted & DeletedAt;
-type PetQueryHelpers = DeletedQueryHelpers<Pet>;
-type PetStaticMethods = DeletedStaticMethods<Pet, PetQueryHelpers>;
-type PetModel = Model<Pet, PetQueryHelpers, DeletedMethods> & PetStaticMethods;
-
-const petSchema = new Schema<Pet, PetModel, DeletedMethods, PetQueryHelpers, {}, PetStaticMethods>({
-	name: String
-});
-
-petSchema.plugin(mongooseDelete, { deletedAt: true });
-
-const PetModel = mongoose.model<Pet, PetModel>('Pet', petSchema);
-
-const fluffy = new PetModel({ name: 'Fluffy' });
-
-await fluffy.save();
+const fluffy = await PetModel.create({ name: 'Fluffy' });
 // mongodb: { name: 'Fluffy', deleted: false }
 
 await fluffy.delete();
@@ -95,6 +92,41 @@ await fluffy.restore();
 ```
 
 ### Deleted by user
+
+```typescript
+const petSchema = softDelete(new Schema({ name: String }), { deletedBy: true });
+const PetModel = mongoose.model('Pet', petSchema);
+
+const fluffy = await PetModel.create({ name: 'Fluffy' });
+// mongodb: { name: 'Fluffy', deleted: false }
+
+const idUser = new mongoose.Types.ObjectId('53da93b16b4a6670076b16bf');
+
+await fluffy.deleteByUser(idUser);
+// mongodb: { name: 'Fluffy', deleted: true, deletedBy: ObjectId("53da93b16b4a6670076b16bf")}
+
+await fluffy.restore();
+// mongodb: { name: 'Fluffy', deleted: false }
+```
+
+The type for `deletedBy` does not have to be `ObjectId`, you can set a custom type, such as `String`.
+
+```typescript
+const petSchema = softDelete(new Schema({ name: String }), { deletedBy: { type: String } });
+const PetModel = mongoose.model('Pet', petSchema);
+
+const fluffy = await PetModel.create({ name: 'Fluffy' });
+// mongodb: { deleted: false, name: 'Fluffy' }
+
+await fluffy.deleteByUser('John Doe');
+// mongodb: { name: 'Fluffy', deleted: true, deletedBy: 'John Doe' }
+
+await fluffy.restore();
+```
+
+### Using `schema.plugin()` with explicit types
+
+The plugin can also be applied with `schema.plugin()`. Mongoose does not change the type of a schema when a plugin is applied, so the types have to be declared by hand:
 
 ```typescript
 import mongoose, { Model, Schema, Types } from 'mongoose';
@@ -110,72 +142,36 @@ import mongooseDelete, {
 
 type Pet = { name: string } & Deleted & DeletedBy<Types.ObjectId>;
 type PetQueryHelpers = DeletedQueryHelpers<Pet>;
+type PetMethods = DeletedMethods & DeletedByMethods<Types.ObjectId>;
 type PetStaticMethods = DeletedStaticMethods<Pet, PetQueryHelpers> & DeletedByStaticMethods<Pet, Types.ObjectId, PetQueryHelpers>;
-type PetModel = Model<Pet, PetQueryHelpers, DeletedMethods & DeletedByMethods<Types.ObjectId>> & PetStaticMethods;
+type PetModel = Model<Pet, PetQueryHelpers, PetMethods> & PetStaticMethods;
 
-const petSchema = new Schema<Pet, PetModel, DeletedMethods & DeletedByMethods<Types.ObjectId>, PetQueryHelpers, {}, PetStaticMethods>({
+const petSchema = new Schema<Pet, PetModel, PetMethods, PetQueryHelpers, {}, PetStaticMethods>({
 	name: String
 });
 
 petSchema.plugin(mongooseDelete, { deletedBy: true });
 
 const PetModel = mongoose.model<Pet, PetModel>('Pet', petSchema);
-
-const fluffy = new PetModel({ name: 'Fluffy' });
-
-await fluffy.save();
-// mongodb: { name: 'Fluffy', deleted: false }
-
-const idUser = new mongoose.Types.ObjectId('53da93b16b4a6670076b16bf');
-
-await fluffy.deleteByUser(idUser);
-// mongodb: { name: 'Fluffy', deleted: true, deletedBy: ObjectId("53da93b16b4a6670076b16bf")}
-
-await fluffy.restore();
-// mongodb: { name: 'Fluffy', deleted: false }
 ```
 
-The type for `deletedBy` does not have to be `ObjectId`, you can set a custom type, such as `String`.
+### ES modules
+
+The package is published as CommonJS. In an ES module project (`"type": "module"` in `package.json`), import the plugin by name:
 
 ```typescript
-import mongoose, { Model, Schema } from 'mongoose';
-import mongooseDelete, {
-	Deleted,
-	DeletedBy,
-	DeletedByMethods,
-	DeletedByStaticMethods,
-	DeletedMethods,
-	DeletedQueryHelpers,
-	DeletedStaticMethods
-} from 'mongoose-delete-ts';
+import { mongooseDelete } from 'mongoose-delete-ts';
 
-type Pet = { name: string } & Deleted & DeletedBy<string>;
-type PetQueryHelpers = DeletedQueryHelpers<Pet>;
-type PetStaticMethods = DeletedStaticMethods<Pet, PetQueryHelpers> & DeletedByStaticMethods<Pet, string, PetQueryHelpers>;
-type PetModel = Model<Pet, PetQueryHelpers, DeletedMethods & DeletedByMethods<string>> & PetStaticMethods;
-
-const petSchema = new Schema<Pet, PetModel, DeletedMethods & DeletedByMethods<string>, PetQueryHelpers, {}, PetStaticMethods>({
-	name: String
-});
-
-petSchema.plugin(mongooseDelete, { deletedBy: { type: String } });
-
-const PetModel = mongoose.model<Pet, PetModel>('Pet', petSchema);
-
-const fluffy = new PetModel({ name: 'Fluffy' });
-
-await fluffy.save();
-// mongodb: { deleted: false, name: 'Fluffy' }
-
-const userName = 'John Doe';
-
-await fluffy.deleteByUser(userName);
-// mongodb: { name: 'Fluffy', deleted: true, deletedBy: 'John Doe' }
-
-await fluffy.restore();
+petSchema.plugin(mongooseDelete);
 ```
 
 ## TypeScript support
+
+### Schema helper
+| Export | Description
+| ---  | ---
+| `softDelete(schema, options?)` | Applies the plugin and returns the schema typed as `SoftDeleteSchema<typeof schema, typeof options>`
+| `SoftDeleteSchema<TSchema, TOptions>` | The type of a schema with the plugin applied
 
 ### Document types
 | Type | Adds property
@@ -249,6 +245,8 @@ petSchema.plugin(mongooseDelete, { overrideMethods: true });
 petSchema.plugin(mongooseDelete, { overrideMethods: ['countDocuments', 'find', 'findOne'] });
 ```
 
+Supported methods are `countDocuments`, `find`, `findOne`, `findOneAndUpdate`, `updateOne`, `updateMany` and `aggregate`.
+
 `exists()` is executed by Mongoose as a `findOne()` query, so it is filtered whenever `findOne` is overridden.
 
 ### Example of query helpers
@@ -309,6 +307,15 @@ petSchema.plugin(mongooseDelete, { deletedBy: 'deleted_by', deletedAt: 'deleted_
 petSchema.plugin(mongooseDelete, { deletedBy: { name: 'deleted_by', type: String }, deletedAt: { name: 'deleted_at' } });
 ```
 Expects a Mongoose [Schema Types](https://mongoosejs.com/docs/schematypes.html#schematype-options) object with the added option of `name`.
+
+## Migrating from 2.x to 3.x
+
+3.x requires Mongoose 9 and Node.js 22 or later. Read the [Mongoose 9 migration guide](https://mongoosejs.com/docs/migrating_to_9.html) first.
+
+- `update` was removed from the `overrideMethods` option. `Model.update()` was removed in Mongoose 7, so the option had no effect.
+- `delete()`, `restore()` and `deleteByUser()` are typed with a generic `this` parameter, so they resolve to the document type they are called on.
+- Mongoose 9 renamed `FilterQuery` to `QueryFilter`. The filters of the plugin statics are typed with `QueryFilter`, which is stricter than before.
+- New: `softDelete()` to get the plugin types without declaring them by hand.
 
 ## License
 

@@ -31,6 +31,7 @@ export default defineConfig(
 				ignoreDeclarationSort: true
 			}],
 			'@typescript-eslint/no-empty-object-type': 'off',
+			'@typescript-eslint/no-unused-vars': ['error', { varsIgnorePattern: '^_' }],
 			'@typescript-eslint/no-explicit-any': 'off'
 		}
 	},
