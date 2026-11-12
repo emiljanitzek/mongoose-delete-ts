@@ -3,7 +3,7 @@ Mongoose Delete TS Plugin
 
 mongoose-delete-ts is simple and lightweight plugin that enables soft deletion of documents in MongoDB. This code is based on plugin [mongoose-delete](https://github.com/dsanel/mongoose-delete). But completely re-written in TypeScript and using mongoose query helpers. 
 
-[![Build Status](https://github.com/emiljanitzek/mongoose-delete/workflows/Test/badge.svg)](https://github.com/emiljanitzek/mongoose-delete/actions/workflows/test.yml)
+[![Build Status](https://github.com/emiljanitzek/mongoose-delete-ts/actions/workflows/test.yml/badge.svg)](https://github.com/emiljanitzek/mongoose-delete/actions/workflows/test.yml)
 
 ## Installation
 Install using [npm](https://npmjs.org)
@@ -21,6 +21,7 @@ We can use this plugin with or without options.
 ### Simple usage
 
 ```typescript
+import mongoose, { Model, Schema } from 'mongoose';
 import mongooseDelete, { Deleted, DeletedQueryHelpers, DeletedMethods, DeletedStaticMethods } from 'mongoose-delete-ts';
 
 type Pet = { name: string } & Deleted;
@@ -34,7 +35,7 @@ const petSchema = new Schema<Pet, PetModel, DeletedMethods, PetQueryHelpers, {},
 
 petSchema.plugin(mongooseDelete);
 
-const PetPetModel = mongoose.model<PetModel>('Pet', petSchema);
+const PetModel = mongoose.model<Pet, PetModel>('Pet', petSchema);
 
 const fluffy = new PetModel({ name: 'Fluffy' });
 
@@ -45,17 +46,28 @@ await fluffy.delete();
 await fluffy.restore();
 // mongodb: { name: 'Fluffy', deleted: false }
 
-const examplePetId = mongoose.Types.ObjectId("53da93b16b4a6670076b16bf");
+const examplePetId = new mongoose.Types.ObjectId('53da93b16b4a6670076b16bf');
 
-const petDocument = await PetModel.deleteById(examplePetId);
+await PetModel.findByIdAndDelete(examplePetId);
 // mongodb: { _id: '53da93b1...', name: 'Fluffy', deleted: true }
+```
+
+### ES modules
+
+The package is published as CommonJS. In an ES module project (`"type": "module"` in `package.json`), import the plugin by name:
+
+```typescript
+import { mongooseDelete } from 'mongoose-delete-ts';
+
+petSchema.plugin(mongooseDelete);
 ```
 
 
 ### Deleted at timestamp
 
 ```typescript
-import mongooseDelete, { Deleted, DeletedAt DeletedQueryHelpers, DeletedMethods, DeletedStaticMethods } from 'mongoose-delete-ts';
+import mongoose, { Model, Schema } from 'mongoose';
+import mongooseDelete, { Deleted, DeletedAt, DeletedQueryHelpers, DeletedMethods, DeletedStaticMethods } from 'mongoose-delete-ts';
 
 type Pet = { name: string } & Deleted & DeletedAt;
 type PetQueryHelpers = DeletedQueryHelpers<Pet>;
@@ -85,14 +97,23 @@ await fluffy.restore();
 ### Deleted by user
 
 ```typescript
-import mongooseDelete, { Deleted, DeletedBy DeletedQueryHelpers, DeletedMethods, DeletedStaticMethods } from 'mongoose-delete-ts';
+import mongoose, { Model, Schema, Types } from 'mongoose';
+import mongooseDelete, {
+	Deleted,
+	DeletedBy,
+	DeletedByMethods,
+	DeletedByStaticMethods,
+	DeletedMethods,
+	DeletedQueryHelpers,
+	DeletedStaticMethods
+} from 'mongoose-delete-ts';
 
 type Pet = { name: string } & Deleted & DeletedBy<Types.ObjectId>;
 type PetQueryHelpers = DeletedQueryHelpers<Pet>;
-type PetStaticMethods = DeletedStaticMethods<Pet, PetQueryHelpers> & DeletedByStaticMethods<Pet, Types.ObjectId, PetQueryHelpers>
+type PetStaticMethods = DeletedStaticMethods<Pet, PetQueryHelpers> & DeletedByStaticMethods<Pet, Types.ObjectId, PetQueryHelpers>;
 type PetModel = Model<Pet, PetQueryHelpers, DeletedMethods & DeletedByMethods<Types.ObjectId>> & PetStaticMethods;
 
-const petSchema = new Schema<Pet, PetModel, DeletedMethods, PetQueryHelpers, {}, PetStaticMethods>({
+const petSchema = new Schema<Pet, PetModel, DeletedMethods & DeletedByMethods<Types.ObjectId>, PetQueryHelpers, {}, PetStaticMethods>({
 	name: String
 });
 
@@ -105,7 +126,7 @@ const fluffy = new PetModel({ name: 'Fluffy' });
 await fluffy.save();
 // mongodb: { name: 'Fluffy', deleted: false }
 
-const idUser = mongoose.Types.ObjectId("53da93b16b4a6670076b16bf");
+const idUser = new mongoose.Types.ObjectId('53da93b16b4a6670076b16bf');
 
 await fluffy.deleteByUser(idUser);
 // mongodb: { name: 'Fluffy', deleted: true, deletedBy: ObjectId("53da93b16b4a6670076b16bf")}
@@ -117,14 +138,23 @@ await fluffy.restore();
 The type for `deletedBy` does not have to be `ObjectId`, you can set a custom type, such as `String`.
 
 ```typescript
-import mongooseDelete, { Deleted, DeletedBy DeletedQueryHelpers, DeletedMethods, DeletedStaticMethods } from 'mongoose-delete-ts';
+import mongoose, { Model, Schema } from 'mongoose';
+import mongooseDelete, {
+	Deleted,
+	DeletedBy,
+	DeletedByMethods,
+	DeletedByStaticMethods,
+	DeletedMethods,
+	DeletedQueryHelpers,
+	DeletedStaticMethods
+} from 'mongoose-delete-ts';
 
 type Pet = { name: string } & Deleted & DeletedBy<string>;
 type PetQueryHelpers = DeletedQueryHelpers<Pet>;
-type PetStaticMethods = DeletedStaticMethods<Pet, PetQueryHelpers> & DeletedByStaticMethods<Pet, string, PetQueryHelpers>
+type PetStaticMethods = DeletedStaticMethods<Pet, PetQueryHelpers> & DeletedByStaticMethods<Pet, string, PetQueryHelpers>;
 type PetModel = Model<Pet, PetQueryHelpers, DeletedMethods & DeletedByMethods<string>> & PetStaticMethods;
 
-const petSchema = new Schema<Pet, PetModel, DeletedMethods, PetQueryHelpers, {}, PetStaticMethods>({
+const petSchema = new Schema<Pet, PetModel, DeletedMethods & DeletedByMethods<string>, PetQueryHelpers, {}, PetStaticMethods>({
 	name: String
 });
 
@@ -139,10 +169,10 @@ await fluffy.save();
 
 const userName = 'John Doe';
 
-await fluffy.deleteByUser(userName)
+await fluffy.deleteByUser(userName);
 // mongodb: { name: 'Fluffy', deleted: true, deletedBy: 'John Doe' }
 
-await fluffy.restore()
+await fluffy.restore();
 ```
 
 ## TypeScript support
@@ -175,14 +205,21 @@ await fluffy.restore()
 
 ```typescript
 // Delete multiple object
-PetModel.deleteMany({});
-PetModel.deleteMany({ age:10 });
-PetModel.deleteManyByUser(idUser, {});
-PetModel.deleteManyByUser(idUser, { age: 10 });
+await PetModel.deleteMany({});
+await PetModel.deleteMany({ age:10 });
+await PetModel.deleteManyByUser(idUser, {});
+await PetModel.deleteManyByUser(idUser, { age: 10 });
 
 // Restore multiple object
-PetModel.restoreMany({});
-PetModel.restoreMany({ age: 10 });
+await PetModel.restoreMany({});
+await PetModel.restoreMany({ age: 10 });
+```
+
+The delete and restore statics return Mongoose queries, like the built-in methods. A query only runs when it is awaited or `exec()` is called, and it can be chained:
+
+```typescript
+const result = await PetModel.deleteMany({ age: 10 }).session(session).exec();
+result.deletedCount;
 ```
 
 ### Method overridden
