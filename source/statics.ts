@@ -52,28 +52,22 @@ export default function(
 	schemaOptions: DeleteSchemaOptions,
 	deletedFieldOptions: DeletedFieldOptions
 ): void {
-	schema.statics.deleteOne = async function<T>(this: Model<any>, filter?: FilterQuery<T>, options?: DeleteOptions<T> | null) {
+	schema.statics.deleteOne = function<T>(this: Model<any>, filter?: FilterQuery<T>, options?: DeleteOptions<T> | null) {
 		const update = staticDelete(deletedFieldOptions);
-		const updateOneFn = this.updateOne.bind(this);
-		const result = await updateOneFn(filter ?? {}, update, mergeOptions(options, schemaOptions));
-		return convertToDeleteResult(result);
+		return this.updateOne(filter ?? {}, update, mergeOptions(options, schemaOptions)).transform(convertToDeleteResult);
 	};
-	schema.statics.deleteMany = async function<T>(this: Model<any>, filter?: FilterQuery<T>, options?: DeleteOptions<T> | null) {
+	schema.statics.deleteMany = function<T>(this: Model<any>, filter?: FilterQuery<T>, options?: DeleteOptions<T> | null) {
 		const update = staticDelete(deletedFieldOptions);
-		const result = await this.updateMany.call(this, filter ?? {}, update, mergeOptions(options, schemaOptions));
-		return convertToDeleteResult(result);
+		return this.updateMany(filter ?? {}, update, mergeOptions(options, schemaOptions)).transform(convertToDeleteResult);
 	};
 
-	schema.statics.deleteOneByUser = async function<TUser, T>(this: Model<any>, user: TUser, filter?: FilterQuery<T>, options?: DeleteOptions<T> | null) {
+	schema.statics.deleteOneByUser = function<TUser, T>(this: Model<any>, user: TUser, filter?: FilterQuery<T>, options?: DeleteOptions<T> | null) {
 		const update = staticDelete(deletedFieldOptions, user);
-		const updateOneFn = this.updateOne.bind(this);
-		const result = await updateOneFn(filter ?? {}, update, mergeOptions(options, schemaOptions));
-		return convertToDeleteResult(result);
+		return this.updateOne(filter ?? {}, update, mergeOptions(options, schemaOptions)).transform(convertToDeleteResult);
 	};
-	schema.statics.deleteManyByUser = async function<TUser, T>(this: Model<any>, user: TUser, filter?: FilterQuery<T>, options?: DeleteOptions<T> | null) {
+	schema.statics.deleteManyByUser = function<TUser, T>(this: Model<any>, user: TUser, filter?: FilterQuery<T>, options?: DeleteOptions<T> | null) {
 		const update = staticDelete(deletedFieldOptions, user);
-		const result = await this.updateMany.call(this, filter ?? {}, update, mergeOptions(options, schemaOptions));
-		return convertToDeleteResult(result);
+		return this.updateMany(filter ?? {}, update, mergeOptions(options, schemaOptions)).transform(convertToDeleteResult);
 	};
 
 	schema.statics.findOneAndDelete = function<T>(this: Model<any>, filter?: FilterQuery<T>, options?: QueryOptions | null) {
