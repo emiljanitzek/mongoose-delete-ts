@@ -44,6 +44,17 @@ describe('simple delete', function() {
 		expectDeletedCount(result, 2);
 	});
 
+	it('document deleteOne() -> set deleted=true on that document only', async function() {
+		const other = await TestModel.create({ name: 'PuffyOther' });
+		const puffy = await TestModel.create({ name: 'PuffyDocument' });
+		await puffy.deleteOne();
+
+		const deleted = await TestModel.findById(puffy.id).allDocuments().orFail();
+		const untouched = await TestModel.findById(other.id).orFail();
+		expect(deleted.deleted).to.equal(true);
+		expect(untouched.deleted).to.equal(false);
+	});
+
 	it('findByIdAndDelete() -> set deleted=true', async function() {
 		const puffy = await TestModel.create({ name: 'Puffy3' });
 		await TestModel.findByIdAndDelete(puffy.id);
