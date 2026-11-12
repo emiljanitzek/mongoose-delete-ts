@@ -7,10 +7,13 @@ import methods  from './methods';
 import query from './query';
 import statics  from './statics';
 
-export default function<TSchema extends DeletedSchema>(
-	schema: TSchema,
+type AnySchema = Schema<any, any, any, any, any, any, any, any, any>;
+
+export default function deletedPlugin(
+	anySchema: AnySchema,
 	options: DeleteSchemaOptions = {}
 ): void {
+	const schema = anySchema as DeletedSchema;
 	const typeKey = schema.get('typeKey') || 'type';
 	const deletedFieldNames: DeletedFieldOptions = {};
 	const indexFields = indexFieldsOption(options.indexFields);
