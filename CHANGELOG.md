@@ -1,6 +1,17 @@
 # Changelog
 
 
+## [3.0.0](https://github.com/emiljanitzek/mongoose-delete-ts/compare/v2.3.0...v3.0.0) (2026-11-12)
+
+
+### ⚠ BREAKING CHANGES
+
+* requires mongoose 9 and Node.js >= 22.0.0. The `update` value of `overrideMethods` was removed.
+
+### Features
+
+* upgrade to mongoose 9, require node 22 and improve types ([844d3da](https://github.com/emiljanitzek/mongoose-delete-ts/commit/844d3dabb38f94ca5e481aebfc9b5a3dc77364c8))
+
 ## [2.3.0](https://github.com/emiljanitzek/mongoose-delete-ts/compare/v2.2.3...v2.3.0) (2026-11-12)
 
 
