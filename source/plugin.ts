@@ -7,7 +7,7 @@ import methods  from './methods';
 import query from './query';
 import statics  from './statics';
 
-type AnySchema = Schema<any, any, any, any, any, any, any, any, any>;
+type AnySchema = Schema<any, any, any, any, any, any, any, any, any, any, any>;
 
 export default function deletedPlugin(
 	anySchema: AnySchema,

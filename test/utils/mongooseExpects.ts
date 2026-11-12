@@ -1,6 +1,5 @@
 import { expect } from 'chai';
-import { UpdateWriteOpResult } from 'mongoose';
-import { DeleteResult } from 'mongodb';
+import { DeleteResult, UpdateWriteOpResult } from 'mongoose';
 
 export function expectOk(result: UpdateWriteOpResult | DeleteResult): void {
 	expect(result.acknowledged).to.equal(true);

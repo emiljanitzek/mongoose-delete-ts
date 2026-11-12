@@ -1,7 +1,15 @@
 import { Aggregate, PipelineStage, Query } from 'mongoose';
 import DeletedSchema from './types/DeletedSchema';
-import { Methods } from './types/DeleteSchemaOptions';
-import Deleted from './types/Deleted';
+import { Methods, QueryMethods } from './types/DeleteSchemaOptions';
+
+const defaultQueryMethods: QueryMethods[] = [
+	'countDocuments',
+	'find',
+	'findOne',
+	'findOneAndUpdate',
+	'updateOne',
+	'updateMany'
+];
 
 export default function(schema: DeletedSchema, methods?: Methods[] | boolean): void {
 	schema.pre('save', function() {
@@ -10,11 +18,9 @@ export default function(schema: DeletedSchema, methods?: Methods[] | boolean): v
 		}
 	});
 
-	const allMethods = getMethodsFromOptions(methods);
-	if (allMethods.length > 0) {
-		schema.pre(allMethods as any, async function <T extends Deleted>(
-			this: Query<unknown, T>
-		) {
+	const queryMethods = getQueryMethodsFromOptions(methods);
+	if (queryMethods.length > 0) {
+		schema.pre(queryMethods, function(this: Query<unknown, unknown>) {
 			if (deletedIsNotAlreadyInQuery(this)) {
 				this.where({ deleted: false });
 			}
@@ -22,9 +28,7 @@ export default function(schema: DeletedSchema, methods?: Methods[] | boolean): v
 	}
 
 	if (hasAggregateInOption(methods)) {
-		schema.pre('aggregate', async function(
-			this: Aggregate<unknown>
-		) {
+		schema.pre('aggregate', function(this: Aggregate<unknown>) {
 			if (deletedIsNotAlreadyInAggregation(this)) {
 				this.pipeline().unshift({ $match: { deleted: false } });
 			}
@@ -32,13 +36,17 @@ export default function(schema: DeletedSchema, methods?: Methods[] | boolean): v
 	}
 }
 
-function getMethodsFromOptions(methods?: Methods[] | boolean): string[] {
+function getQueryMethodsFromOptions(methods?: Methods[] | boolean): QueryMethods[] {
 	if (methods === false) {
 		return [];
 	} else if (Array.isArray(methods)) {
-		return methods;
+		return methods.filter(isQueryMethod);
 	}
-	return ['find', 'findOne', 'findOneAndUpdate', 'update', 'updateOne', 'updateMany', 'countDocuments'];
+	return defaultQueryMethods;
+}
+
+function isQueryMethod(method: Methods): method is QueryMethods {
+	return method !== 'aggregate';
 }
 
 function hasAggregateInOption(methods?: Methods[] | boolean): boolean {
@@ -50,7 +58,7 @@ function hasAggregateInOption(methods?: Methods[] | boolean): boolean {
 	return true;
 }
 
-function deletedIsNotAlreadyInQuery<T>(query: Query<unknown, T>): boolean {
+function deletedIsNotAlreadyInQuery(query: Query<unknown, unknown>): boolean {
 	return typeof query.getQuery().deleted === 'undefined';
 }
 
